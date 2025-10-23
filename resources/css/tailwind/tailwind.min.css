@@ -1,0 +1,14 @@
+@tailwind base; @tailwind components; @tailwind utilities; .custom-checkbox-1:checked + div {
+  @apply bg-purple-500;
+  @apply border-purple-500;
+}
+
+.custom-checkbox-1:checked + div svg {
+  @apply text-white opacity-100;
+  @apply block;
+}
+
+.custom-switch-1:checked + div {
+  @apply left-1/2;
+  @apply bg-white;
+}
