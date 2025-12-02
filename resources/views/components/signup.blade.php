@@ -1,0 +1,1 @@
+{{-- legacy signup component removed; design migrated to auth-panel --}}
