@@ -1,10 +1,14 @@
 @extends('layouts._layout')
 @section('body')
-@include('components.index-__structures-section-5')
+
 @include('components.index-custom-components-section-1')
 @include('components.index-custom-components-section-2')
+
+@include('components.recent-produits')
 @include('components.index-custom-components-section-3')
-@include('components.index-custom-components-section-4')
+
+<!-- best seller -->
+@include('components.best-ventes')
 @endsection
 @section('headItems')
 <title>Capocop-Shop — Homepage</title>

@@ -1,8 +1,10 @@
 @extends('layouts._layout')
+
 @section('body')
-@include('components.produits-__structures-section-1')
-@include('components.produits-__structures-section-2')
+@include('components.produits-all')
+@include('components.produits-similaires')
 @endsection
+
 @section('headItems')
-<title>Page title</title>
+<title>Listes des produits capocop</title>
 @endsection
