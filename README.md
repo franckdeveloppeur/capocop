@@ -1,6 +1,6 @@
-# Shuffle ([https://shuffle.dev](https://shuffle.dev))
+#projet capocop shop
 
-This project is a Laravel application that uses front-end templates exported from [Shuffle Editor](https://shuffle.dev) and styled with Tailwind CSS.
+ce projet represente le projet e-commerce de capocop pour la ventes des produits .
 
 ---
 
