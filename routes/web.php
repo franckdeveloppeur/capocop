@@ -7,7 +7,7 @@ Route::get('/', function () {
 });
 
 Route::get('/produits', function () {
-    return view('produits');
+    return view('produits.produits-all');
 });
 
 Route::get('/details', function () {
@@ -21,10 +21,11 @@ Route::get('/panier', function () {
 Route::get('/commandes', function () {
     return view('commandes');
 });
+// routes pour les favoris 
+Route::get('/favoris', function () {
+    return view('produits.favoris');
+})->name('favoris')->middleware(['auth']);
 
-Route::get('/signup', function () {
-    return view('signup');
-});
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
