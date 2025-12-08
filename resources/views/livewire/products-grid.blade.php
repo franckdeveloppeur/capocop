@@ -20,8 +20,18 @@ new class extends Component {
         <div class="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             @foreach($products['items'] as $product)
                 @php
-                    $displayImage = optional($product->media->first())->file_name;
-                    $imageUrl = $displayImage ? asset('storage/' . $displayImage) : asset('coleos-assets/product-blocks/product-no-bg1.png');
+                    $media = optional($product->media->first());
+                    if ($media) {
+                        try {
+                            $path = data_get($media, 'custom_properties.full_path')
+                                ?? ('products/' . data_get($media, 'file_name'));
+                            $imageUrl = asset('storage/' . $path);
+                        } catch (\Throwable $e) {
+                            $imageUrl = asset('coleos-assets/product-blocks/product-no-bg1.png');
+                        }
+                    } else {
+                        $imageUrl = asset('coleos-assets/product-blocks/product-no-bg1.png');
+                    }
                     $hasPromo = !empty($product->price_promo) && $product->price_promo < $product->base_price;
                 @endphp
                 <a href="{{ route('products.show', $product->slug) }}" class="group">

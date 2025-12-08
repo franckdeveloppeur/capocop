@@ -3,5 +3,5 @@
 @include('components.panier')
 @endsection
 @section('headItems')
-<title>Page title</title>
+<title>Panier utilisateur</title>
 @endsection

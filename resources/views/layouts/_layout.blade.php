@@ -11,12 +11,14 @@
 
     @yield('headItems')
     @livewireStyles
+    @filamentStyles
 </head>
 <body class="antialiased  @yield('bodyClasses')">
     <header>
     @include('components.navigation-bar')
     </header>
     <div class=" @yield('firstDivClasses')">
+        @livewire('notifications')
             @yield('body')
     </div>
     @vite(['resources/js/app.js'])
@@ -25,6 +27,7 @@
     @include('components.footer')
     
     @livewireScripts
+    @filamentScripts
 </body>
 </html>
 

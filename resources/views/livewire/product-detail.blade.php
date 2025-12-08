@@ -234,9 +234,7 @@ new class extends Component {
                                         <span class="px-4 py-2 text-center font-semibold">{{ $quantity }}</span>
                                         <button wire:click="increaseQuantity" class="px-3 py-2 text-coolGray-700 hover:bg-coolGray-100">+</button>
                                     </div>
-                                    <button wire:click="addToCart" class="flex-1 px-3 py-4 rounded-sm text-center text-white text-sm font-medium bg-purple-500 hover:bg-purple-600 transition duration-200">
-                                        Ajouter au panier
-                                    </button>
+                                    <livewire:cart-button :product-id="$product->id" :quantity="$quantity" :key="'cart-detail-'.$product->id.'-'.$quantity" />
                                 </div>
 
                                 <!-- Shop Info -->

@@ -1,2 +1,58 @@
-    
-      <section class="py-20 px-4 bg-purple-50" id="paiement"><div class="max-w-7xl mx-auto"><div class="text-center mb-16"><span class="inline-block py-1 px-3 mb-4 text-xs text-purple-600 font-bold bg-white uppercase rounded-full tracking-wider">Facilité de paiement</span><h2 class="text-4xl md:text-5xl font-heading text-rhino-700 font-semibold mb-4">Paiement Échelonné sur Salaire</h2><p class="max-w-2xl mx-auto text-coolGray-600">Achetez maintenant et payez progressivement avec des prélèvements automatiques sur votre salaire. Simple, sécurisé et sans stress.</p></div><div class="flex flex-wrap -mx-4 mb-12"><div class="w-full lg:w-1/2 px-4 mb-8 lg:mb-0"><div class="bg-white rounded-sm p-8 h-full shadow-md"><div class="flex items-center mb-6"><div class="w-12 h-12 flex items-center justify-center bg-purple-100 rounded-full mr-4"><svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div><h3 class="text-xl font-heading text-rhino-700 font-semibold">1. Choisissez vos produits</h3></div><p class="text-coolGray-600">Parcourez notre catalogue et ajoutez les articles souhaités à votre panier. Bouteilles de gaz, plaques, fournitures scolaires et plus encore.</p></div></div><div class="w-full lg:w-1/2 px-4 mb-8 lg:mb-0"><div class="bg-white rounded-sm p-8 h-full shadow-md"><div class="flex items-center mb-6"><div class="w-12 h-12 flex items-center justify-center bg-purple-100 rounded-full mr-4"><svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg></div><h3 class="text-xl font-heading text-rhino-700 font-semibold">2. Sélectionnez votre mode de paiement</h3></div><p class="text-coolGray-600">Choisissez entre le paiement unique ou le paiement échelonné sur 3, 5 ou 10 mois selon le montant de votre achat.</p></div></div><div class="w-full lg:w-1/2 px-4 mb-8 lg:mb-0"><div class="bg-white rounded-sm p-8 h-full shadow-md"><div class="flex items-center mb-6"><div class="w-12 h-12 flex items-center justify-center bg-purple-100 rounded-full mr-4"><svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></div><h3 class="text-xl font-heading text-rhino-700 font-semibold">3. Fournissez vos informations</h3></div><p class="text-coolGray-600">Remplissez le formulaire avec vos informations d'employé et votre bulletin de salaire. Vos données sont sécurisées et confidentielles.</p></div></div><div class="w-full lg:w-1/2 px-4"><div class="bg-white rounded-sm p-8 h-full shadow-md"><div class="flex items-center mb-6"><div class="w-12 h-12 flex items-center justify-center bg-purple-100 rounded-full mr-4"><svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div><h3 class="text-xl font-heading text-rhino-700 font-semibold">4. Recevez vos produits</h3></div><p class="text-coolGray-600">Une fois approuvé, recevez vos produits immédiatement. Les prélèvements mensuels seront effectués automatiquement sur votre salaire.</p></div></div></div><div class="bg-gradient-to-r from-purple-600 to-purple-700 rounded-sm p-8 text-white text-center"><h3 class="text-2xl font-heading font-semibold mb-4">Prêt à commencer?</h3><p class="mb-6 text-purple-100">Créez votre compte et profitez du paiement échelonné dès aujourd'hui</p><a class="inline-block px-8 py-3 rounded-sm text-center text-sm font-medium text-purple-600 bg-white hover:bg-purple-50 transition duration-200" href="#">Créer mon compte</a></div></div></section>
+    <section class="py-20 px-4 bg-purple-50" id="paiement">
+          <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-16"><span class="inline-block py-1 px-3 mb-4 text-xs text-purple-600 font-bold bg-white uppercase rounded-full tracking-wider">Facilité de paiement</span>
+                      <h2 class="text-4xl md:text-5xl font-heading text-rhino-700 font-semibold mb-4">Paiement Échelonné sur Salaire</h2>
+                      <p class="max-w-2xl mx-auto text-coolGray-600">Achetez maintenant et payez progressivement avec des prélèvements automatiques sur votre salaire. Simple, sécurisé et sans stress.</p>
+                </div>
+                <div class="flex flex-wrap -mx-4 mb-12">
+                      <div class="w-full lg:w-1/2 px-4 mb-8 lg:mb-0">
+                            <div class="bg-white rounded-sm p-8 h-full shadow-md">
+                                  <div class="flex items-center mb-6">
+                                        <div class="w-12 h-12 flex items-center justify-center bg-purple-100 rounded-full mr-4"><svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                              </svg></div>
+                                        <h3 class="text-xl font-heading text-rhino-700 font-semibold">1. Choisissez vos produits</h3>
+                                  </div>
+                                  <p class="text-coolGray-600">Parcourez notre catalogue et ajoutez les articles souhaités à votre panier. Bouteilles de gaz, plaques, fournitures scolaires et plus encore.</p>
+                            </div>
+                      </div>
+                      <div class="w-full lg:w-1/2 px-4 mb-8 lg:mb-0">
+                            <div class="bg-white rounded-sm p-8 h-full shadow-md">
+                                  <div class="flex items-center mb-6">
+                                        <div class="w-12 h-12 flex items-center justify-center bg-purple-100 rounded-full mr-4"><svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                                              </svg></div>
+                                        <h3 class="text-xl font-heading text-rhino-700 font-semibold">2. Sélectionnez votre mode de paiement</h3>
+                                  </div>
+                                  <p class="text-coolGray-600">Choisissez entre le paiement unique ou le paiement échelonné sur 3, 5 ou 10 mois selon le montant de votre achat.</p>
+                            </div>
+                      </div>
+                      <div class="w-full lg:w-1/2 px-4 mb-8 lg:mb-0">
+                            <div class="bg-white rounded-sm p-8 h-full shadow-md">
+                                  <div class="flex items-center mb-6">
+                                        <div class="w-12 h-12 flex items-center justify-center bg-purple-100 rounded-full mr-4"><svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                              </svg></div>
+                                        <h3 class="text-xl font-heading text-rhino-700 font-semibold">3. Fournissez vos informations</h3>
+                                  </div>
+                                  <p class="text-coolGray-600">Remplissez le formulaire avec vos informations d'employé et votre bulletin de salaire. Vos données sont sécurisées et confidentielles.</p>
+                            </div>
+                      </div>
+                      <div class="w-full lg:w-1/2 px-4">
+                            <div class="bg-white rounded-sm p-8 h-full shadow-md">
+                                  <div class="flex items-center mb-6">
+                                        <div class="w-12 h-12 flex items-center justify-center bg-purple-100 rounded-full mr-4"><svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                              </svg></div>
+                                        <h3 class="text-xl font-heading text-rhino-700 font-semibold">4. Recevez vos produits</h3>
+                                  </div>
+                                  <p class="text-coolGray-600">Une fois approuvé, recevez vos produits immédiatement. Les prélèvements mensuels seront effectués automatiquement sur votre salaire.</p>
+                            </div>
+                      </div>
+                </div>
+                <div class="bg-gradient-to-r from-purple-600 to-purple-700 rounded-sm p-8 text-white text-center">
+                      <h3 class="text-2xl font-heading font-semibold mb-4">Prêt à commencer?</h3>
+                      <p class="mb-6 text-purple-100">Créez votre compte et profitez du paiement échelonné dès aujourd'hui</p><a class="inline-block px-8 py-3 rounded-sm text-center text-sm font-medium text-purple-600 bg-white hover:bg-purple-50 transition duration-200" href="{{ route('register') }}">Créer mon compte</a>
+                </div>
+          </div>
+    </section>

@@ -8,7 +8,7 @@ Route::get('/', function () {
 
 Route::get('/produits', function () {
     return view('produits.produits-all');
-});
+})->name('produits');
 
 Route::get('/produit/{slug}', function ($slug) {
     return view('details', ['slug' => $slug]);
@@ -21,6 +21,11 @@ Route::get('/details', function () {
 Route::get('/panier', function () {
     return view('panier');
 });
+
+// checkout
+Route::get('/checkout', function () {
+    return view('orders.checkout');
+})->name('checkout');
 
 Route::get('/commandes', function () {
     return view('commandes');

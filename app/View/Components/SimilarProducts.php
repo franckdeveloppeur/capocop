@@ -46,9 +46,11 @@ class SimilarProducts extends Component
                 $media = $p->media->first();
                 if ($media) {
                     try {
-                        $url = Storage::disk($media->disk ?? 'public')->url($media->file_name);
+                        $path = data_get($media, 'custom_properties.full_path')
+                            ?? ('products/' . data_get($media, 'file_name'));
+                        $url = asset('storage/' . $path);
                     } catch (\Throwable $e) {
-                        $url = asset('storage/' . ($media->file_name ?? ''));
+                        $url = asset('coleos-assets/product-blocks/product-no-bg1.png');
                     }
                 } else {
                     $url = asset('coleos-assets/product-blocks/product-no-bg1.png');
