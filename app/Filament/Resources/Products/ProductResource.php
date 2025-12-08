@@ -10,6 +10,7 @@ use App\Filament\Resources\Products\Schemas\ProductForm;
 use App\Filament\Resources\Products\Schemas\ProductInfolist;
 use App\Filament\Resources\Products\Tables\ProductsTable;
 use App\Models\Product;
+use App\Filament\Resources\Products\RelationManagers\MediaRelationManager;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -40,7 +41,7 @@ class ProductResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            MediaRelationManager::class,
         ];
     }
 

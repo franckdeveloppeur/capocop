@@ -2,10 +2,11 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
-use Filament\Infolists\Components\IconEntry;
-use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 use Filament\Forms\Components\Placeholder;
+use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\ImageEntry;
 
 class ProductInfolist
 {
@@ -15,6 +16,24 @@ class ProductInfolist
             ->components([
                 TextEntry::make('id')
                     ->label('ID'),
+                    ImageEntry::make('media')
+                        ->label('Image')
+                        ->disk('public')
+                        ->getStateUsing(fn ($record) =>
+                            (function ($record) {
+                                try {
+                                    $first = data_get($record, 'media.0');
+                                    if ($first) {
+                                        return data_get($first, 'custom_properties.full_path') ?? ('products/' . data_get($first, 'file_name'));
+                                    }
+                                } catch (\Throwable $e) {
+                                    // ignore
+                                }
+
+                                return null;
+                            })($record)
+                        )
+                        ->columnSpanFull(),
                 TextEntry::make('shop.name')
                     ->label('Shop'),
                 TextEntry::make('title'),

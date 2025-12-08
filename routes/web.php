@@ -10,6 +10,10 @@ Route::get('/produits', function () {
     return view('produits.produits-all');
 });
 
+Route::get('/produit/{slug}', function ($slug) {
+    return view('details', ['slug' => $slug]);
+})->name('products.show');
+
 Route::get('/details', function () {
     return view('details');
 });

@@ -2,14 +2,15 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
+use Illuminate\Support\Str;
 use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
-use Illuminate\Support\Str;
+use Filament\Schemas\Components\Utilities\Set;
 
 class ProductForm
 {
@@ -21,6 +22,7 @@ class ProductForm
                 Section::make('Informations Générales')
                     ->description('Informations de base du produit')
                     ->icon('heroicon-o-information-circle')
+                    ->columnSpanFull()
                     ->collapsible()
                     ->schema([
                         Select::make('shop_id')
@@ -37,7 +39,8 @@ class ProductForm
                             ->maxLength(255)
                             ->placeholder('Ex: Chemise Classique Bleu')
                             ->hint('Le titre visible sur le site')
-                            ->afterStateUpdated(fn ($state, \Closure $set) => $set('slug', Str::slug($state))),
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(fn(Set $set, ?string $state) => $set('slug', Str::slug($state))),
 
                         TextInput::make('slug')
                             ->label('Slug (URL)')
@@ -114,7 +117,7 @@ class ProductForm
                             ->label('Statut de Publication')
                             ->options([
                                 'draft' => 'Brouillon',
-                                'published' => 'Publié',
+                                'active' => 'Publié',
                                 'archived' => 'Archivé',
                             ])
                             ->required()
@@ -127,23 +130,23 @@ class ProductForm
                             ->hint('Activez pour tracker l\'inventaire'),
                     ]),
 
-                // === SECTION 5: IMAGES ET MÉDIA ===
-                Section::make('Images et Média')
-                    ->description('Téléchargez les images du produit')
+                // === SECTION 5: IMAGE PRINCIPALE ===
+                Section::make('Image Principale')
+                    ->description('Téléchargez l\'image principale du produit')
                     ->icon('heroicon-o-photo')
                     ->collapsible()
                     ->schema([
-                        FileUpload::make('product_images')
-                            ->label('Images du Produit')
-                            ->multiple()
-                            ->image()
-                            ->imageEditor()
-                            ->directory('products')
-                            ->maxSize(2048)
-                            ->reorderable()
-                            ->appendFiles()
-                            ->hint('Téléchargez les images du produit. Max 2MB par image.')
-                            ->columnSpanFull(),
+                            FileUpload::make('product_images')
+                                ->label('Image Principale')
+                                ->image()
+                                ->disk('public')
+                                ->multiple()
+                                ->imageEditor()
+                                ->directory('products')
+                                ->maxSize(2048)
+                                ->required()
+                                ->hint('Téléchargez l\'image principale. Max 2MB.')
+                                ->columnSpanFull(),
                     ]),
             ]);
     }

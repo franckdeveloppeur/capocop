@@ -1,8 +1,7 @@
 @extends('layouts._layout')
 
 @section('body')
-@include('components.produits-all')
-@include('components.produits-similaires')
+<livewire:products-list />
 @endsection
 
 @section('headItems')

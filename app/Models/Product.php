@@ -94,9 +94,82 @@ class Product extends Model
         return $this->morphMany(Favorite::class, 'favoritable');
     }
 
-    public function getPrice(): float
+    public function getPrice(): ?float
     {
-        return $this->price_promo ?? $this->base_price;
+        return $this->price_promo !== null ? (float)$this->price_promo : (float)$this->base_price;
+    }
+
+    /**
+     * Scope: Filter by categories
+     */
+    public function scopeByCategories($query, array $categoryIds)
+    {
+        if (empty($categoryIds)) {
+            return $query;
+        }
+
+        return $query->whereHas('categories', function ($q) use ($categoryIds) {
+            $q->whereIn('categories.id', $categoryIds);
+        });
+    }
+
+    /**
+     * Scope: Filter by price range
+     */
+    public function scopeByPriceRange($query, $minPrice = null, $maxPrice = null)
+    {
+        if ($minPrice !== null) {
+            $query->where('base_price', '>=', $minPrice)
+                  ->orWhere('price_promo', '>=', $minPrice);
+        }
+
+        if ($maxPrice !== null) {
+            $query->where(function ($q) use ($maxPrice) {
+                $q->where('base_price', '<=', $maxPrice)
+                  ->orWhere('price_promo', '<=', $maxPrice);
+            });
+        }
+
+        return $query;
+    }
+
+    /**
+     * Scope: Filter by status
+     */
+    public function scopePublished($query)
+    {
+        return $query->where('status', 'active');
+    }
+
+    /**
+     * Scope: Filter by tags
+     */
+    public function scopeByTags($query, array $tagIds)
+    {
+        if (empty($tagIds)) {
+            return $query;
+        }
+
+        return $query->whereIn('id', function ($subquery) use ($tagIds) {
+            $subquery->select('taggables.taggable_id')
+                ->from('taggables')
+                ->whereIn('taggables.tag_id', $tagIds)
+                ->where('taggables.taggable_type', static::class);
+        });
+    }
+
+    /**
+     * Scope: Sort products
+     */
+    public function scopeSortBy($query, $sort = 'newest')
+    {
+        return match($sort) {
+            'oldest' => $query->oldest('created_at'),
+            'price_asc' => $query->orderByRaw('COALESCE(price_promo, base_price) ASC'),
+            'price_desc' => $query->orderByRaw('COALESCE(price_promo, base_price) DESC'),
+            'popular' => $query->orderByRaw('(SELECT COUNT(*) FROM order_items WHERE order_items.product_id = products.id) DESC')->orderBy('created_at', 'desc'),
+            default => $query->latest('created_at'),
+        };
     }
 }
 

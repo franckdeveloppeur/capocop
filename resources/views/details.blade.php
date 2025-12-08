@@ -1,9 +1,8 @@
 @extends('layouts._layout')
 @section('body')
-@include('components.details-__structures-section-1')
-@include('components.detail-produit')
-@include('components.details-headers-section-3')
+<livewire:product-detail :slug="$slug" />
+
 @endsection
 @section('headItems')
-<title>Page title</title>
+<title>{{ $slug ?? 'Produit' }} - Détails</title>
 @endsection

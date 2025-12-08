@@ -16,6 +16,7 @@ class Favorite extends Model
         'session_id',
         'favoritable_type',
         'favoritable_id',
+        'created_at',
     ];
 
     public $timestamps = false;
@@ -34,6 +35,7 @@ class Favorite extends Model
         return $this->morphTo();
     }
 }
+
 
 
 

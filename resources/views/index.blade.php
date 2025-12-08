@@ -4,7 +4,7 @@
 @include('components.index-custom-components-section-1')
 @include('components.index-custom-components-section-2')
 
-@include('components.recent-produits')
+<livewire:recent-products />
 @include('components.index-custom-components-section-3')
 
 <!-- best seller -->
