@@ -28,3 +28,9 @@ class ShopFactory extends Factory
 
 
 
+
+
+
+
+
+

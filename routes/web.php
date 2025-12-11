@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\OrderController;
 
 Route::get('/', function () {
     return view('index');
@@ -22,14 +23,22 @@ Route::get('/panier', function () {
     return view('panier');
 });
 
+// Recherche
+Route::get('/recherche', function () {
+    return view('recherche');
+})->name('search');
+
 // checkout
 Route::get('/checkout', function () {
     return view('orders.checkout');
-})->name('checkout');
+})->name('checkout')->middleware(['auth']);
 
-Route::get('/commandes', function () {
-    return view('commandes');
-});
+// Confirmation de commande
+Route::get('/commande/{order}/confirmation', function ($order) {
+    return view('orders.confirmation', ['orderId' => $order]);
+})->name('orders.confirmation');
+
+Route::get('/commandes', [OrderController::class, 'viewCommandes'])->name('commandes')->middleware(['auth']);
 // routes pour les favoris 
 Route::get('/favoris', function () {
     return view('produits.favoris');

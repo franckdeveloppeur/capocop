@@ -135,14 +135,8 @@
               </div>
               <div class="w-auto sm:w-1/2 xl:w-auto px-4">
                 <div class="flex items-center justify-end">
-                  <div class="hidden md:flex items-center px-6 py-1 border border-coolGray-200 rounded-full">
-                    <input class="h-12 bg-transparent border-0 text-sm text-coolGray-500 placeholder-coolGray-500 outline-none" type="search" placeholder="Search...">
-                    <button class="inline-block text-coolGray-400 hover:text-rhino-500" type="submit">
-                      <svg width="14" height="14" viewbox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" data-config-id="svg-inline13">
-                        <path d="M6.33333 11.6667C9.27885 11.6667 11.6667 9.27885 11.6667 6.33333C11.6667 3.38782 9.27885 1 6.33333 1C3.38782 1 1 3.38782 1 6.33333C1 9.27885 3.38782 11.6667 6.33333 11.6667Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                        <path d="M13.0001 13L10.1001 10.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                      </svg>
-                    </button>
+                  <div class="hidden md:block w-72 lg:w-96">
+                    <livewire:search-box />
                   </div>
                   <button x-on:click="mobileNavOpen = !mobileNavOpen" class="xl:hidden ml-8 text-coolGray-400">
                     <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-config-id="svg-inline14">
@@ -169,14 +163,8 @@
                 </svg>
               </button>
             </div>
-            <div class="flex w-full max-w-xs items-center px-6 border border-coolGray-200 rounded-full">
-              <input class="h-12 w-full bg-transparent border-0 text-sm text-coolGray-500 placeholder-coolGray-500 outline-none" type="search" placeholder="Search...">
-              <button class="inline-block ml-auto text-coolGray-400 hover:text-rhino-500" type="submit">
-                <svg width="14" height="14" viewbox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" data-config-id="svg-inline16">
-                  <path d="M6.33333 11.6667C9.27885 11.6667 11.6667 9.27885 11.6667 6.33333C11.6667 3.38782 9.27885 1 6.33333 1C3.38782 1 1 3.38782 1 6.33333C1 9.27885 3.38782 11.6667 6.33333 11.6667Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                  <path d="M13.0001 13L10.1001 10.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                </svg>
-              </button>
+            <div class="w-full max-w-xs">
+              <livewire:search-box />
             </div>
             <div class="py-12 mb-auto">
               <ul class="flex-col">

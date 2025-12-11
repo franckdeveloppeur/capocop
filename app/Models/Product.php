@@ -171,5 +171,60 @@ class Product extends Model
             default => $query->latest('created_at'),
         };
     }
+
+    /**
+     * Scope: Search products by keyword
+     */
+    public function scopeSearch($query, ?string $keyword)
+    {
+        if (empty($keyword) || strlen($keyword) < 2) {
+            return $query;
+        }
+
+        $term = '%' . trim($keyword) . '%';
+
+        return $query->where(function ($q) use ($term) {
+            $q->where('title', 'LIKE', $term)
+              ->orWhere('description', 'LIKE', $term)
+              ->orWhereHas('categories', function ($cq) use ($term) {
+                  $cq->where('name', 'LIKE', $term);
+              })
+              ->orWhereHas('tags', function ($tq) use ($term) {
+                  $tq->where('name', 'LIKE', $term);
+              });
+        });
+    }
+
+    /**
+     * Scope: Search with relevance scoring for better results
+     */
+    public function scopeSearchWithRelevance($query, ?string $keyword)
+    {
+        if (empty($keyword) || strlen($keyword) < 2) {
+            return $query;
+        }
+
+        $term = trim($keyword);
+        $likeTerm = '%' . $term . '%';
+
+        return $query->where(function ($q) use ($likeTerm) {
+            $q->where('title', 'LIKE', $likeTerm)
+              ->orWhere('description', 'LIKE', $likeTerm)
+              ->orWhereHas('categories', function ($cq) use ($likeTerm) {
+                  $cq->where('name', 'LIKE', $likeTerm);
+              })
+              ->orWhereHas('tags', function ($tq) use ($likeTerm) {
+                  $tq->where('name', 'LIKE', $likeTerm);
+              });
+        })
+        ->orderByRaw("
+            CASE 
+                WHEN title LIKE ? THEN 1
+                WHEN title LIKE ? THEN 2
+                WHEN description LIKE ? THEN 3
+                ELSE 4
+            END
+        ", [$term, $likeTerm, $likeTerm]);
+    }
 }
 

@@ -1,7 +1,7 @@
 @extends('layouts._layout')
 @section('body')
-    <livewire:checkout />
+@include('components.mes-commandes')
 @endsection
 @section('headItems')
-<title>Finaliser votre commande - Capocop</title>
+<title>Mes commandes - Capocop</title>
 @endsection
