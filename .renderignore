@@ -1,0 +1,45 @@
+# Fichiers à ignorer lors du build sur Render
+
+# Tests
+/tests
+/phpunit.xml
+/.phpunit.result.cache
+
+# Documentation locale
+/DOCKER_SETUP.md
+/README_LARAVEL.md
+
+# Configuration Docker locale
+/docker/nginx
+/docker/php
+/docker/mysql
+/docker/supervisor
+/docker-compose.yml
+/Dockerfile
+/docker-start.ps1
+/docker-start.sh
+
+# IDE
+/.idea
+/.vscode
+*.swp
+*.swo
+*~
+
+# Git
+/.git
+/.github
+/.gitignore
+/.gitattributes
+
+# Node (sera réinstallé lors du build)
+/node_modules
+
+# Vendor (sera réinstallé lors du build)
+/vendor
+
+# Fichiers temporaires
+*.log
+.DS_Store
+Thumbs.db
+

@@ -1,0 +1,113 @@
+# Dockerfile optimisé pour Render
+# Multi-stage build pour réduire la taille de l'image finale
+
+# Stage 1: Builder - Installation des dépendances
+FROM php:8.2-fpm as builder
+
+# Installer les dépendances système
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libzip-dev \
+    zip \
+    unzip \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Installer les extensions PHP
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip opcache
+
+# Installer Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Installer Node.js 20 LTS
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Définir le répertoire de travail
+WORKDIR /var/www
+
+# Copier les fichiers de dépendances
+COPY composer.json composer.lock package.json package-lock.json ./
+
+# Installer les dépendances PHP (production uniquement)
+RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
+
+# Installer les dépendances Node.js
+RUN npm ci --only=production
+
+# Copier le reste du code
+COPY . .
+
+# Générer l'autoloader optimisé
+RUN composer dump-autoload --optimize --classmap-authoritative
+
+# Compiler les assets
+RUN npm run build
+
+# Nettoyer les fichiers inutiles
+RUN rm -rf node_modules tests .git .github .env.example
+
+# Stage 2: Production - Image finale légère
+FROM php:8.2-fpm
+
+# Arguments de build
+ARG user=www
+ARG uid=1000
+
+# Installer les dépendances minimales pour la production
+RUN apt-get update && apt-get install -y \
+    nginx \
+    supervisor \
+    libpng16-16 \
+    libzip4 \
+    libonig5 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Installer les extensions PHP
+RUN docker-php-ext-install pdo_mysql opcache
+
+# Créer l'utilisateur système
+RUN useradd -G www-data,root -u $uid -d /home/$user $user \
+    && mkdir -p /home/$user/.composer \
+    && chown -R $user:$user /home/$user
+
+# Copier la configuration PHP optimisée pour production
+COPY docker/render/php.ini /usr/local/etc/php/conf.d/production.ini
+
+# Copier la configuration Nginx
+COPY docker/render/nginx.conf /etc/nginx/nginx.conf
+COPY docker/render/default.conf /etc/nginx/sites-available/default
+
+# Copier la configuration Supervisor
+COPY docker/render/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Définir le répertoire de travail
+WORKDIR /var/www
+
+# Copier l'application depuis le builder
+COPY --from=builder --chown=$user:www-data /var/www /var/www
+
+# Créer les répertoires nécessaires avec les bonnes permissions
+RUN mkdir -p storage/framework/{sessions,views,cache} \
+    storage/logs \
+    bootstrap/cache \
+    && chown -R $user:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
+
+# Script de démarrage
+COPY docker/render/start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
+
+# Exposer le port (Render utilise la variable $PORT)
+EXPOSE 80
+
+# Utiliser le script de démarrage
+CMD ["/usr/local/bin/start.sh"]
+
