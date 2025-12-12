@@ -116,3 +116,5 @@ echo -e "   docker-compose exec app bash  # Accéder au conteneur"
 echo -e "\n${GREEN}🚀 Bon développement!${NC}"
 echo -e "${CYAN}═══════════════════════════════════════════════════════════${NC}\n"
 
+
+

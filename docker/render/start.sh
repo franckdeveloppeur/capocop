@@ -45,3 +45,5 @@ echo "✅ Application prête!"
 echo "🌐 Démarrage des services web..."
 exec /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.conf
 
+
+

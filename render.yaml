@@ -157,3 +157,5 @@ redis:
     maxmemoryPolicy: allkeys-lru  # Stratégie d'éviction
     ipAllowList: []
 
+
+

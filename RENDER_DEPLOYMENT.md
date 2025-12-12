@@ -481,3 +481,5 @@ Votre application Capocop est maintenant déployée sur Render avec :
 
 **Bon déploiement ! 🚀**
 
+
+

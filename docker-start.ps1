@@ -18,15 +18,22 @@ if (-not (Test-Path ".env")) {
     Write-Host "⚠️  Le fichier .env n'existe pas." -ForegroundColor Yellow
     Write-Host "📋 Création du fichier .env depuis le template..." -ForegroundColor Cyan
     Copy-Item "docker/env-template.txt" ".env"
-    Write-Host "✅ Fichier .env créé. Veuillez modifier les mots de passe avant de continuer!" -ForegroundColor Green
-    Write-Host "`n⚠️  IMPORTANT: Éditez le fichier .env et changez au minimum:" -ForegroundColor Red
-    Write-Host "   - DB_PASSWORD" -ForegroundColor Yellow
-    Write-Host "   - DB_ROOT_PASSWORD" -ForegroundColor Yellow
-    Write-Host "   - REDIS_PASSWORD" -ForegroundColor Yellow
-    Write-Host "`nAppuyez sur une touche une fois que vous avez modifié le fichier .env..."
-    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+    
+    # Générer des mots de passe aléatoires
+    $dbPassword = -join ((65..90) + (97..122) + (48..57) | Get-Random -Count 16 | ForEach-Object {[char]$_})
+    $dbRootPassword = -join ((65..90) + (97..122) + (48..57) | Get-Random -Count 16 | ForEach-Object {[char]$_})
+    $redisPassword = -join ((65..90) + (97..122) + (48..57) | Get-Random -Count 16 | ForEach-Object {[char]$_})
+    
+    # Remplacer les mots de passe dans le fichier .env
+    (Get-Content ".env") -replace "DB_PASSWORD=secret_password", "DB_PASSWORD=$dbPassword" `
+        -replace "DB_ROOT_PASSWORD=root_password", "DB_ROOT_PASSWORD=$dbRootPassword" `
+        -replace "REDIS_PASSWORD=redis_password", "REDIS_PASSWORD=$redisPassword" | 
+        Set-Content ".env"
+    
+    Write-Host "✅ Fichier .env créé avec des mots de passe sécurisés!" -ForegroundColor Green
+} else {
+    Write-Host "✅ Fichier .env trouvé" -ForegroundColor Green
 }
-Write-Host "✅ Fichier .env trouvé" -ForegroundColor Green
 
 # Construction des images Docker
 Write-Host "`n🏗️  Construction des images Docker..." -ForegroundColor Cyan

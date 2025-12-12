@@ -13,6 +13,8 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     libzip-dev \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
     zip \
     unzip \
     nginx \
@@ -21,7 +23,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Installer les extensions PHP requises
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip opcache
 
 # Installer Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -46,23 +49,40 @@ COPY docker/nginx/default.conf /etc/nginx/sites-available/default
 COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/php/local.ini /usr/local/etc/php/conf.d/local.ini
 
-# Copier les fichiers du projet
+# Copier composer.json et composer.lock en premier (pour le cache Docker)
+COPY --chown=$user:$user composer.json composer.lock ./
+
+# Passer à l'utilisateur www pour composer
+USER $user
+
+# Installer les dépendances PHP (sans scripts pour éviter les erreurs)
+RUN composer install --no-scripts --no-autoloader --prefer-dist --no-interaction
+
+# Copier le reste des fichiers du projet
+USER root
 COPY --chown=$user:$user . /var/www
 
-# Installer les dépendances PHP avec Composer
+# Générer l'autoloader et exécuter les scripts post-install
 USER $user
-RUN composer install --optimize-autoloader --no-dev --no-interaction
+RUN composer dump-autoload --optimize
+
+# Créer les répertoires nécessaires s'ils n'existent pas
+RUN mkdir -p storage/framework/{sessions,views,cache} \
+    storage/logs \
+    bootstrap/cache
 
 # Installer les dépendances Node.js et compiler les assets
-RUN npm install && npm run build
+RUN npm ci --prefer-offline --no-audit \
+    && npm run build \
+    && rm -rf node_modules
 
 # Retourner à l'utilisateur root pour les permissions finales
 USER root
 
 # Définir les permissions
 RUN chown -R $user:www-data /var/www \
-    && chmod -R 755 /var/www/storage \
-    && chmod -R 755 /var/www/bootstrap/cache
+    && chmod -R 775 /var/www/storage \
+    && chmod -R 775 /var/www/bootstrap/cache
 
 # Exposer le port 80
 EXPOSE 80

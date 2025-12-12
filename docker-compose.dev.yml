@@ -1,0 +1,26 @@
+version: '3.8'
+
+# Configuration de développement
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        user: www
+        uid: 1000
+    volumes:
+      # Monter le code source pour le hot-reload
+      - ./:/var/www
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+      - /var/www/vendor  # Exclure vendor du montage
+      - /var/www/node_modules  # Exclure node_modules du montage
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - LOG_LEVEL=debug
+
+
+

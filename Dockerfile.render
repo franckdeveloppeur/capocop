@@ -111,3 +111,5 @@ EXPOSE 80
 # Utiliser le script de démarrage
 CMD ["/usr/local/bin/start.sh"]
 
+
+
