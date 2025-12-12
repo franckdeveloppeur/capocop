@@ -23,7 +23,9 @@ Start-Sleep -Seconds 20
 
 # 5. Installer les dépendances
 Write-Host "📦 Installation des dépendances PHP..." -ForegroundColor Cyan
-docker-compose -f docker-compose-dev.yml exec -T app composer install --no-interaction
+Write-Host "⚠️  Cela peut prendre 5-10 minutes..." -ForegroundColor Yellow
+docker-compose -f docker-compose-dev.yml exec -T app composer install --no-interaction --prefer-dist --no-plugins --no-scripts
+docker-compose -f docker-compose-dev.yml exec -T app composer dump-autoload
 
 # 6. Installer NPM
 Write-Host "📦 Installation de NPM..." -ForegroundColor Cyan

@@ -31,7 +31,9 @@ sleep 20
 
 # 5. Installer les dépendances dans le conteneur
 echo -e "${CYAN}📦 Installation des dépendances...${NC}"
-docker-compose -f docker-compose-dev.yml exec -T app composer install --no-interaction
+echo -e "${YELLOW}⚠️  Cela peut prendre 5-10 minutes...${NC}"
+docker-compose -f docker-compose-dev.yml exec -T app composer install --no-interaction --prefer-dist --no-plugins --no-scripts
+docker-compose -f docker-compose-dev.yml exec -T app composer dump-autoload
 
 # 6. Installer les dépendances NPM
 echo -e "${CYAN}📦 Installation de NPM...${NC}"
