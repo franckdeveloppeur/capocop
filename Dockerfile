@@ -1,5 +1,5 @@
-# Utiliser PHP 8.2 avec FPM
-FROM php:8.2-fpm
+# Utiliser PHP 8.3 avec FPM
+FROM php:8.3-fpm
 
 # Arguments de build
 ARG user=www
@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
+    libicu-dev \
     zip \
     unzip \
     nginx \
@@ -24,7 +25,8 @@ RUN apt-get update && apt-get install -y \
 
 # Installer les extensions PHP requises
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip opcache
+    && docker-php-ext-configure intl \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip opcache intl
 
 # Installer Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer

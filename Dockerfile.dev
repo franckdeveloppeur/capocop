@@ -1,5 +1,5 @@
 # Dockerfile simplifié pour le développement local
-FROM php:8.2-fpm
+FROM php:8.3-fpm
 
 # Arguments
 ARG user=www
@@ -15,12 +15,14 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
+    libicu-dev \
     zip \
     unzip \
     nginx \
     supervisor \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip opcache \
+    && docker-php-ext-configure intl \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip opcache intl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
