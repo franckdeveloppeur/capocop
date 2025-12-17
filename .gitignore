@@ -24,3 +24,41 @@ Homestead.yaml
 npm-debug.log
 Thumbs.db
 yarn-error.log
+
+# ============================================
+# Configuration Docker (Local uniquement)
+# ============================================
+
+# Dockerfiles
+Dockerfile
+Dockerfile.dev
+Dockerfile.render
+.dockerignore
+
+# Docker Compose
+docker-compose.yml
+docker-compose.dev.yml
+docker-compose-dev.yml
+docker-compose.override.yml
+
+# Dossier de configuration Docker
+/docker/
+
+# Scripts Docker
+docker-start.sh
+docker-start.ps1
+docker-build-simple.sh
+docker-build-simple.ps1
+start-dev.sh
+start-dev.ps1
+composer-config.sh
+
+# Documentation Docker
+DOCKER_SETUP.md
+DOCKER_TROUBLESHOOTING.md
+
+# Fichiers de déploiement Render
+render.yaml
+RENDER_DEPLOYMENT.md
+RENDER_QUICKSTART.md
+.renderignore
