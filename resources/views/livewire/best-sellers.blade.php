@@ -229,7 +229,7 @@ new #[Lazy] class extends Component {
                                             Voir la collection
                                         </a>
                                     </div>
-                                    <img class="absolute top-0 right-0 m-2 opacity-80" src="{{ Vite::asset('resources/coleos-assets/product-blocks/arrow.png') }}" alt="">
+                                    <img class="absolute top-0 right-0 m-2 opacity-80" src="/coleos-assets/product-blocks/arrow.png" alt="">
                                 </div>
                             </div>
                         </div>
