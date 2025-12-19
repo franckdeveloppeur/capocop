@@ -16,4 +16,12 @@ class ViewProduct extends ViewRecord
             EditAction::make(),
         ];
     }
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        // Ensure media relation is loaded
+        $this->record->load('media', 'shop', 'categories', 'tags');
+        
+        return $data;
+    }
 }

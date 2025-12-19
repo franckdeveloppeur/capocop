@@ -20,6 +20,46 @@ class EditProduct extends EditRecord
     {
         return [
             ViewAction::make(),
+            \Filament\Actions\Action::make('archive')
+                ->label('Archiver')
+                ->icon('heroicon-o-archive-box')
+                ->color('warning')
+                ->requiresConfirmation()
+                ->modalHeading('Archiver ce produit')
+                ->modalDescription('Êtes-vous sûr de vouloir archiver ce produit ? Il ne sera plus visible pour les clients.')
+                ->modalSubmitActionLabel('Oui, archiver')
+                ->action(function () {
+                    $this->record->update(['status' => 'archived']);
+                    
+                    \Filament\Notifications\Notification::make()
+                        ->title('Produit archivé')
+                        ->success()
+                        ->body('Le produit a été archivé avec succès.')
+                        ->send();
+                        
+                    return redirect()->to(static::getResource()::getUrl('index'));
+                })
+                ->visible(fn () => $this->record->status !== 'archived'),
+                
+            \Filament\Actions\Action::make('unarchive')
+                ->label('Désarchiver')
+                ->icon('heroicon-o-arrow-up-tray')
+                ->color('success')
+                ->requiresConfirmation()
+                ->modalHeading('Désarchiver ce produit')
+                ->modalDescription('Voulez-vous rendre ce produit visible à nouveau ?')
+                ->modalSubmitActionLabel('Oui, désarchiver')
+                ->action(function () {
+                    $this->record->update(['status' => 'active']);
+                    
+                    \Filament\Notifications\Notification::make()
+                        ->title('Produit désarchivé')
+                        ->success()
+                        ->body('Le produit est maintenant actif.')
+                        ->send();
+                })
+                ->visible(fn () => $this->record->status === 'archived'),
+                
             DeleteAction::make(),
         ];
     }

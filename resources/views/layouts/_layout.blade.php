@@ -25,10 +25,11 @@
         @livewire('notifications')
         @yield('body')
     </div>
-    @vite(['resources/js/app.js'])
+   
 
 
     @include('components.footer')
+    @vite(['resources/js/app.js'])
     @filamentScripts
     @livewireScripts
 

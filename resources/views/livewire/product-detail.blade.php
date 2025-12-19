@@ -2,10 +2,12 @@
 
 use Livewire\Volt\Component;
 use App\Models\Product;
+use App\Models\ProductVariant;
 
 new class extends Component {
     public ?Product $product = null;
-    public string $selectedSize = 'XS';
+    public ?ProductVariant $selectedVariant = null;
+    public array $selectedAttributes = [];
     public int $quantity = 1;
     public int $selectedIndex = 0;
 
@@ -17,8 +19,14 @@ new class extends Component {
         }
 
         $this->product = Product::where('slug', $slug)
-            ->with(['media', 'shop', 'categories', 'reviews'])
+            ->with(['media', 'shop', 'categories', 'reviews', 'variants'])
             ->firstOrFail();
+            
+        // Sélectionner la première variante par défaut si disponible
+        if ($this->product->variants->isNotEmpty()) {
+            $this->selectedVariant = $this->product->variants->first();
+            $this->selectedAttributes = $this->selectedVariant->attributes ?? [];
+        }
     }
 
     #[\Livewire\Attributes\Computed]
@@ -28,12 +36,130 @@ new class extends Component {
     }
 
     #[\Livewire\Attributes\Computed]
+    public function hasVariants()
+    {
+        return $this->product && $this->product->variants->isNotEmpty();
+    }
+
+    #[\Livewire\Attributes\Computed]
+    public function availableAttributes()
+    {
+        if (!$this->hasVariants) {
+            return [];
+        }
+
+        $attributes = [];
+        foreach ($this->product->variants as $variant) {
+            if (!empty($variant->attributes)) {
+                foreach ($variant->attributes as $key => $value) {
+                    if (!empty($value) && $key !== 'color') {
+                        $attributes[$key][] = $value;
+                    }
+                }
+            }
+        }
+
+        // Dédupliquer les valeurs
+        foreach ($attributes as $key => $values) {
+            $attributes[$key] = array_values(array_unique($values));
+        }
+
+        return $attributes;
+    }
+
+    #[\Livewire\Attributes\Computed]
+    public function availableColors()
+    {
+        if (!$this->hasVariants) {
+            return [];
+        }
+
+        $colors = [];
+        foreach ($this->product->variants as $variant) {
+            if (!empty($variant->attributes['color'])) {
+                $colorValue = $variant->attributes['color'];
+                // Stocker la couleur avec son variant pour accès facile
+                if (!isset($colors[$colorValue])) {
+                    $colors[$colorValue] = [
+                        'value' => $colorValue,
+                        'variant' => $variant,
+                        'stock' => $variant->stock,
+                        'price' => $variant->price,
+                    ];
+                }
+            }
+        }
+
+        return array_values($colors);
+    }
+
+    public function selectVariant($variantId)
+    {
+        $variant = $this->product->variants->firstWhere('id', $variantId);
+        if ($variant) {
+            $this->selectedVariant = $variant;
+            $this->selectedAttributes = $variant->attributes ?? [];
+        }
+    }
+
+    public function selectAttributeValue($attribute, $value)
+    {
+        $this->selectedAttributes[$attribute] = $value;
+        
+        // Trouver la variante qui correspond le mieux aux attributs sélectionnés
+        $matchingVariant = $this->product->variants->first(function ($variant) {
+            foreach ($this->selectedAttributes as $attr => $val) {
+                if (!isset($variant->attributes[$attr]) || $variant->attributes[$attr] !== $val) {
+                    return false;
+                }
+            }
+            return true;
+        });
+
+        // Si pas de correspondance exacte, chercher par attribut principal
+        if (!$matchingVariant) {
+            $matchingVariant = $this->product->variants->first(function ($variant) use ($attribute, $value) {
+                return isset($variant->attributes[$attribute]) && 
+                       $variant->attributes[$attribute] === $value;
+            });
+        }
+
+        if ($matchingVariant) {
+            $this->selectedVariant = $matchingVariant;
+            $this->selectedAttributes = $matchingVariant->attributes ?? [];
+        }
+    }
+
+    #[\Livewire\Attributes\Computed]
     public function displayPrice()
     {
         if (!$this->product) {
             return null;
         }
 
+        // Si une variante est sélectionnée, utiliser son prix
+        if ($this->selectedVariant && $this->selectedVariant->price) {
+            $variantPrice = (float) $this->selectedVariant->price;
+            $basePrice = (float) $this->product->base_price;
+            
+            if ($variantPrice < $basePrice) {
+                return [
+                    'original' => $basePrice,
+                    'promo' => $variantPrice,
+                    'hasDiscount' => true,
+                    'discountPercent' => round((1 - ($variantPrice / $basePrice)) * 100),
+                ];
+            }
+            
+            return [
+                'original' => $variantPrice,
+                'promo' => null,
+                'hasDiscount' => false,
+                'discountPercent' => 0,
+            ];
+        }
+
+        // Sinon, utiliser le prix du produit
         if ($this->product->price_promo && $this->product->price_promo < $this->product->base_price) {
             return [
                 'original' => (float) $this->product->base_price,
@@ -49,6 +175,24 @@ new class extends Component {
             'hasDiscount' => false,
             'discountPercent' => 0,
         ];
+    }
+
+    #[\Livewire\Attributes\Computed]
+    public function currentStock()
+    {
+        if ($this->selectedVariant) {
+            return $this->selectedVariant->stock ?? 0;
+        }
+        return null;
+    }
+
+    #[\Livewire\Attributes\Computed]
+    public function isInStock()
+    {
+        if ($this->selectedVariant) {
+            return $this->selectedVariant->stock > 0;
+        }
+        return $this->product->stock_manage ?? false;
     }
 
     public function getImageUrl($media)
@@ -174,9 +318,25 @@ new class extends Component {
                                 </div>
 
                                 <!-- Stock Status -->
-                                <div class="inline-block mb-4 bg-orange-500 rounded-full px-4 py-1 text-center uppercase text-white text-xs font-bold tracking-widest">
-                                    {{ $product->stock_manage ? 'In stock' : 'Out of stock' }}
+                                <div class="inline-block mb-4 rounded-full px-4 py-1 text-center uppercase text-white text-xs font-bold tracking-widest {{ $this->isInStock ? 'bg-green-500' : 'bg-red-500' }}">
+                                    @if($this->hasVariants)
+                                        @if($this->isInStock)
+                                            {{ $this->currentStock }} en stock
+                                        @else
+                                            Rupture de stock
+                                        @endif
+                                    @else
+                                        {{ $product->stock_manage ? 'En stock' : 'Hors stock' }}
+                                    @endif
                                 </div>
+
+                                <!-- SKU Info -->
+                                @if($selectedVariant)
+                                    <div class="mb-2">
+                                        <span class="text-xs text-coolGray-500">SKU: </span>
+                                        <span class="text-xs font-semibold text-rhino-600">{{ $selectedVariant->sku }}</span>
+                                    </div>
+                                @endif
 
                                 <!-- Product Title -->
                                 <h1 class="mb-4 font-heading text-3xl sm:text-4xl text-rhino-700 font-semibold">
@@ -191,51 +351,272 @@ new class extends Component {
                                 <!-- Price Section -->
                                 <div class="mb-8">
                                     <div class="py-4">
-                                        @if($this->displayPrice['hasDiscount'])
-                                            <div class="flex items-center gap-4">
-                                                <h2 class="text-rhino-700 text-4xl font-semibold font-heading">
-                                                    {{ number_format($this->displayPrice['promo'], 2) }} XFA
-                                                </h2>
-                                                <span class="text-xl text-gray-400 line-through">
-                                                    {{ number_format($this->displayPrice['original'], 2) }} XFA
-                                                </span>
-                                                <span class="text-sm bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-bold">
-                                                    -{{ $this->displayPrice['discountPercent'] }}%
-                                                </span>
+                                        @if($selectedVariant)
+                                            <!-- Prix de la variante -->
+                                            <div class="mb-3">
+                                                <div class="flex items-baseline gap-2 mb-2">
+                                                    <span class="text-xs font-semibold text-purple-600 uppercase tracking-wide">Prix de la variante</span>
+                                                    @if($selectedVariant->stock <= 5 && $selectedVariant->stock > 0)
+                                                        <span class="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">
+                                                            Plus que {{ $selectedVariant->stock }} restant{{ $selectedVariant->stock > 1 ? 's' : '' }}
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                                @if($this->displayPrice['hasDiscount'])
+                                                    <div class="flex items-center gap-4">
+                                                        <h2 class="text-purple-600 text-4xl font-bold font-heading">
+                                                            {{ number_format($this->displayPrice['promo'], 0, ',', ' ') }} XFA
+                                                        </h2>
+                                                        <span class="text-xl text-gray-400 line-through">
+                                                            {{ number_format($this->displayPrice['original'], 0, ',', ' ') }} XFA
+                                                        </span>
+                                                        <span class="text-sm bg-red-500 text-white px-3 py-1 rounded-full font-bold">
+                                                            -{{ $this->displayPrice['discountPercent'] }}%
+                                                        </span>
+                                                    </div>
+                                                @else
+                                                    <h2 class="text-purple-600 text-4xl font-bold font-heading">
+                                                        {{ number_format($this->displayPrice['original'], 0, ',', ' ') }} XFA
+                                                    </h2>
+                                                @endif
                                             </div>
+                                            
+                                            <!-- Prix de base du produit pour comparaison -->
+                                            @if($product->base_price != $selectedVariant->price)
+                                                <div class="mt-3 p-3 bg-coolGray-50 rounded-lg border border-coolGray-200">
+                                                    <div class="flex items-center justify-between">
+                                                        <span class="text-xs text-coolGray-600">Prix de base du produit:</span>
+                                                        <span class="text-sm font-medium text-coolGray-700">{{ number_format($product->base_price, 0, ',', ' ') }} XFA</span>
+                                                    </div>
+                                                    @php
+                                                        $priceDiff = $selectedVariant->price - $product->base_price;
+                                                        $diffPercent = round(($priceDiff / $product->base_price) * 100);
+                                                    @endphp
+                                                    @if($priceDiff < 0)
+                                                        <div class="mt-1 flex items-center gap-1 text-xs text-green-600">
+                                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M12 13a1 1 0 100 2h5a1 1 0 001-1V9a1 1 0 10-2 0v2.586l-4.293-4.293a1 1 0 00-1.414 0L8 9.586 3.707 5.293a1 1 0 00-1.414 1.414l5 5a1 1 0 001.414 0L11 9.414 14.586 13H12z" clip-rule="evenodd"/>
+                                                            </svg>
+                                                            <span class="font-semibold">Économisez {{ number_format(abs($priceDiff), 0, ',', ' ') }} XFA ({{ abs($diffPercent) }}%)</span>
+                                                        </div>
+                                                    @elseif($priceDiff > 0)
+                                                        <div class="mt-1 text-xs text-orange-600">
+                                                            <span class="font-medium">+{{ number_format($priceDiff, 0, ',', ' ') }} XFA ({{ $diffPercent }}%)</span>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            @endif
                                         @else
-                                            <h2 class="text-rhino-700 text-4xl font-semibold font-heading">
-                                                {{ number_format($this->displayPrice['original'], 2) }} XFA
-                                            </h2>
+                                            <!-- Prix standard du produit (sans variante) -->
+                                            <div class="mb-2">
+                                                <span class="text-xs font-semibold text-rhino-500 uppercase tracking-wide">Prix</span>
+                                            </div>
+                                            @if($this->displayPrice['hasDiscount'])
+                                                <div class="flex items-center gap-4">
+                                                    <h2 class="text-rhino-700 text-4xl font-bold font-heading">
+                                                        {{ number_format($this->displayPrice['promo'], 0, ',', ' ') }} XFA
+                                                    </h2>
+                                                    <span class="text-xl text-gray-400 line-through">
+                                                        {{ number_format($this->displayPrice['original'], 0, ',', ' ') }} XFA
+                                                    </span>
+                                                    <span class="text-sm bg-red-500 text-white px-3 py-1 rounded-full font-bold">
+                                                        -{{ $this->displayPrice['discountPercent'] }}%
+                                                    </span>
+                                                </div>
+                                            @else
+                                                <h2 class="text-rhino-700 text-4xl font-bold font-heading">
+                                                    {{ number_format($this->displayPrice['original'], 0, ',', ' ') }} XFA
+                                                </h2>
+                                            @endif
                                         @endif
                                     </div>
                                 </div>
 
-                                <!-- Size Selection -->
-                                <div class="mb-6">
-                                    <p class="uppercase text-xs font-bold text-rhino-500 mb-3">SIZE</p>
-                                    <div class="flex flex-wrap -mx-1 -mb-1">
-                                        @foreach(['XS', 'S', 'M', 'L', 'XL', 'XXL'] as $size)
-                                            <div class="w-1/3 md:w-1/6 px-1 mb-1">
-                                                <button wire:click="$set('selectedSize', '{{ $size }}')"
-                                                        :class="{ 'border-purple-500 text-purple-700 bg-purple-50': $wire.selectedSize === '{{ $size }}', 'border-coolGray-200 text-coolGray-700': $wire.selectedSize !== '{{ $size }}' }"
-                                                        class="w-full border py-2 rounded-sm text-center text-sm cursor-pointer transition duration-200 hover:border-purple-500 hover:text-purple-700">
-                                                    {{ $size }}
-                                                </button>
+                                <!-- Color Selection (if available) -->
+                                @if($this->hasVariants && count($this->availableColors) > 0)
+                                    <div class="mb-6">
+                                        <p class="uppercase text-xs font-bold text-rhino-500 mb-3">COULEUR</p>
+                                        <div class="flex flex-wrap gap-3">
+                                            @foreach($this->availableColors as $colorData)
+                                                @php
+                                                    $colorValue = $colorData['value'];
+                                                    $isSelected = isset($selectedAttributes['color']) && $selectedAttributes['color'] === $colorValue;
+                                                    $isAvailable = $colorData['stock'] > 0;
+                                                @endphp
+                                                <div class="relative group">
+                                                    <button wire:click="selectAttributeValue('color', '{{ $colorValue }}')"
+                                                            @disabled(!$isAvailable)
+                                                            class="relative w-12 h-12 rounded-full border-3 transition {{ $isSelected ? 'border-purple-500 ring-4 ring-purple-200' : 'border-coolGray-300 hover:border-purple-400' }} {{ !$isAvailable ? 'opacity-40 cursor-not-allowed' : '' }}"
+                                                            style="background-color: {{ $colorValue }};"
+                                                            title="{{ $colorValue }}">
+                                                        @if($isSelected)
+                                                            <div class="absolute inset-0 flex items-center justify-center">
+                                                                <svg class="w-6 h-6 text-white drop-shadow-lg" fill="currentColor" viewBox="0 0 20 20">
+                                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                                                </svg>
+                                                            </div>
+                                                        @endif
+                                                        @if(!$isAvailable)
+                                                            <div class="absolute inset-0 flex items-center justify-center">
+                                                                <div class="w-px h-full bg-red-500 transform rotate-45"></div>
+                                                            </div>
+                                                        @endif
+                                                    </button>
+                                                    <!-- Tooltip -->
+                                                    <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block z-10">
+                                                        <div class="bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                                                            {{ $colorValue }}
+                                                            @if(!$isAvailable)
+                                                                <span class="text-red-400">(Épuisé)</span>
+                                                            @endif
+                                                            <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
+
+                                <!-- Size/Attributes Selection -->
+                                @if($this->hasVariants && count($this->availableAttributes) > 0)
+                                    @foreach($this->availableAttributes as $attributeName => $attributeValues)
+                                        <div class="mb-6">
+                                            <p class="uppercase text-xs font-bold text-rhino-500 mb-3">{{ strtoupper($attributeName) }}</p>
+                                            <div class="flex flex-wrap -mx-1 -mb-1">
+                                                @foreach($attributeValues as $value)
+                                                    @php
+                                                        $isSelected = isset($selectedAttributes[$attributeName]) && $selectedAttributes[$attributeName] === $value;
+                                                    @endphp
+                                                    <div class="w-1/3 md:w-1/6 px-1 mb-1">
+                                                        <button wire:click="selectAttributeValue('{{ $attributeName }}', '{{ $value }}')"
+                                                                class="w-full border py-2 rounded-sm text-center text-sm cursor-pointer transition duration-200 {{ $isSelected ? 'border-purple-500 text-purple-700 bg-purple-50 font-bold' : 'border-coolGray-200 text-coolGray-700 hover:border-purple-500 hover:text-purple-700' }}">
+                                                            {{ strtoupper($value) }}
+                                                        </button>
+                                                    </div>
+                                                @endforeach
                                             </div>
+                                        </div>
+                                    @endforeach
+                                @endif
+
+                                <!-- Variant Selector (if no attributes but has variants) -->
+                                @if($this->hasVariants && count($this->availableAttributes) === 0 && count($this->availableColors) === 0)
+                                    <div class="mb-6">
+                                        <p class="uppercase text-xs font-bold text-rhino-500 mb-3">VARIANTES</p>
+                                        <div class="flex flex-col gap-2">
+                                            @foreach($product->variants as $variant)
+                                                @php
+                                                    $isSelected = $selectedVariant && $selectedVariant->id === $variant->id;
+                                                    $isAvailable = $variant->stock > 0;
+                                                @endphp
+                                                <button wire:click="selectVariant('{{ $variant->id }}')"
+                                                        @disabled(!$isAvailable)
+                                                        class="w-full border p-3 rounded-sm text-left transition duration-200 {{ $isSelected ? 'border-purple-500 bg-purple-50' : 'border-coolGray-200 hover:border-purple-400' }} {{ !$isAvailable ? 'opacity-50 cursor-not-allowed' : '' }}">
+                                                    <div class="flex justify-between items-center">
+                                                        <div>
+                                                            <p class="font-semibold text-sm {{ $isSelected ? 'text-purple-700' : 'text-rhino-700' }}">
+                                                                {{ $variant->sku }}
+                                                            </p>
+                                                            <p class="text-xs text-coolGray-500 mt-1">
+                                                                Stock: {{ $variant->stock }} | Prix: {{ number_format($variant->price, 2) }} XFA
+                                                            </p>
+                                                        </div>
+                                                        @if($isSelected)
+                                                            <svg class="w-5 h-5 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                                            </svg>
+                                                        @endif
+                                                    </div>
+                                                </button>
                                         @endforeach
                                     </div>
                                 </div>
+                                @endif
 
                                 <!-- Quantity and Add to Cart -->
                                 <div class="mb-6 flex items-center gap-4">
                                     <div class="flex items-center border border-coolGray-200 rounded-sm">
-                                        <button wire:click="decreaseQuantity" class="px-3 py-2 text-coolGray-700 hover:bg-coolGray-100">-</button>
-                                        <span class="px-4 py-2 text-center font-semibold">{{ $quantity }}</span>
-                                        <button wire:click="increaseQuantity" class="px-3 py-2 text-coolGray-700 hover:bg-coolGray-100">+</button>
+                                        <button wire:click="decreaseQuantity" class="px-3 py-2 text-coolGray-700 hover:bg-coolGray-100" type="button">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                                            </svg>
+                                        </button>
+                                        <span class="px-6 py-2 text-center font-semibold min-w-[60px]">{{ $quantity }}</span>
+                                        <button wire:click="increaseQuantity" class="px-3 py-2 text-coolGray-700 hover:bg-coolGray-100" type="button">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                            </svg>
+                                        </button>
                                     </div>
-                                    <livewire:cart-button :product-id="$product->id" :quantity="$quantity" :key="'cart-detail-'.$product->id.'-'.$quantity" />
+                                    
+                                    @if($this->hasVariants && !$this->isInStock)
+                                        <button disabled class="flex-1 bg-gray-300 text-gray-600 px-6 py-3 rounded-sm font-semibold cursor-not-allowed">
+                                            Rupture de stock
+                                        </button>
+                                    @else
+                                        <livewire:cart-button 
+                                            :product-id="$product->id" 
+                                            :variant-id="$selectedVariant?->id" 
+                                            :quantity="$quantity" 
+                                            :key="'cart-detail-'.$product->id.'-'.($selectedVariant?->id ?? 'no-variant').'-'.$quantity" />
+                                    @endif
                                 </div>
+
+                                <!-- Variant Info Card -->
+                                @if($selectedVariant)
+                                    <div class="mb-6 bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-300 rounded-xl p-4 shadow-sm">
+                                        <div class="flex items-start gap-3">
+                                            <div class="flex-shrink-0 bg-purple-500 rounded-full p-2">
+                                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                            </div>
+                                            <div class="flex-1">
+                                                <p class="text-sm font-bold text-purple-900 mb-2 flex items-center gap-2">
+                                                    Variante sélectionnée
+                                                    @if($selectedVariant->stock > 0)
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                            <span class="w-1.5 h-1.5 mr-1 bg-green-400 rounded-full"></span>
+                                                            Disponible
+                                                        </span>
+                                                    @else
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                            <span class="w-1.5 h-1.5 mr-1 bg-red-400 rounded-full"></span>
+                                                            Épuisé
+                                                        </span>
+                                                    @endif
+                                                </p>
+                                                <div class="grid grid-cols-2 gap-2 text-xs">
+                                                    <div class="bg-white/60 rounded-lg p-2">
+                                                        <p class="text-purple-600 font-medium mb-0.5">SKU</p>
+                                                        <p class="text-purple-900 font-semibold">{{ $selectedVariant->sku }}</p>
+                                                    </div>
+                                                    <div class="bg-white/60 rounded-lg p-2">
+                                                        <p class="text-purple-600 font-medium mb-0.5">Stock</p>
+                                                        <p class="text-purple-900 font-semibold">{{ $selectedVariant->stock }} unité{{ $selectedVariant->stock > 1 ? 's' : '' }}</p>
+                                                    </div>
+                                                    @if($selectedVariant->weight)
+                                                        <div class="bg-white/60 rounded-lg p-2">
+                                                            <p class="text-purple-600 font-medium mb-0.5">Poids</p>
+                                                            <p class="text-purple-900 font-semibold">{{ $selectedVariant->weight }} kg</p>
+                                                        </div>
+                                                    @endif
+                                                    @if(!empty($selectedVariant->attributes))
+                                                        @foreach($selectedVariant->attributes as $attr => $val)
+                                                            @if(!empty($val))
+                                                                <div class="bg-white/60 rounded-lg p-2">
+                                                                    <p class="text-purple-600 font-medium mb-0.5 capitalize">{{ $attr }}</p>
+                                                                    <p class="text-purple-900 font-semibold uppercase">{{ $val }}</p>
+                                                                </div>
+                                                            @endif
+                                                        @endforeach
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
 
                                 <!-- Shop Info -->
                                 @if($product->shop)

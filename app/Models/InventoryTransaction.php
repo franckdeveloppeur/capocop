@@ -16,6 +16,7 @@ class InventoryTransaction extends Model
         'change',
         'reason',
         'meta',
+        'created_at',
     ];
 
     protected function casts(): array
@@ -27,13 +28,18 @@ class InventoryTransaction extends Model
         ];
     }
 
-    public $timestamps = false;
+    // Les transactions d'inventaire ne doivent jamais être modifiées après création
+    // On utilise seulement created_at, pas updated_at
+    const UPDATED_AT = null;
 
     public function variant(): BelongsTo
     {
         return $this->belongsTo(ProductVariant::class, 'variant_id');
     }
 }
+
+
+
 
 
 

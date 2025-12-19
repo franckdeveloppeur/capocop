@@ -52,11 +52,11 @@ new class extends Component {
                     
                     @if($hasPromo)
                         <p class="text-rhino-300">
-                            <span class="line-through mr-2">${{ number_format($product->base_price, 2) }}</span>
-                            <span class="text-red-600 font-bold">${{ number_format($product->price_promo, 2) }}</span>
+                            <span class="line-through mr-2">{{ number_format($product->base_price, 2) }} FCFA</span>
+                            <span class="text-red-600 font-bold">{{ number_format($product->price_promo, 2) }} FCFA</span>
                         </p>
                     @else
-                        <p class="text-rhino-300">${{ number_format($product->base_price, 2) }}</p>
+                        <p class="text-rhino-300">{{ number_format($product->base_price, 2) }} FCFA</p>
                     @endif
                 </a>
             @endforeach
