@@ -123,12 +123,12 @@
                         <path d="M8.47315 10.36L12.2398 6.58667C12.3023 6.52469 12.3519 6.45096 12.3857 6.36972C12.4196 6.28848 12.437 6.20134 12.437 6.11333C12.437 6.02533 12.4196 5.93819 12.3857 5.85695C12.3519 5.77571 12.3023 5.70198 12.2398 5.64C12.1149 5.51583 11.9459 5.44614 11.7698 5.44614C11.5937 5.44614 11.4247 5.51583 11.2998 5.64L7.96648 8.94L4.66648 5.64C4.54157 5.51583 4.3726 5.44614 4.19648 5.44614C4.02036 5.44614 3.85139 5.51583 3.72648 5.64C3.66349 5.70174 3.61337 5.77537 3.57904 5.85662C3.54471 5.93787 3.52685 6.02513 3.52648 6.11333C3.52685 6.20154 3.54471 6.28879 3.57904 6.37004C3.61337 6.45129 3.66349 6.52492 3.72648 6.58667L7.49315 10.36C7.55557 10.4277 7.63134 10.4817 7.71568 10.5186C7.80001 10.5556 7.89108 10.5746 7.98315 10.5746C8.07521 10.5746 8.16628 10.5556 8.25062 10.5186C8.33495 10.4817 8.41072 10.4277 8.47315 10.36Z" fill="currentColor"></path>
                       </svg>
                     </a>
-                    <a class="inline-flex mr-10 items-center text-sm font-bold text-rhino-700 hover:text-rhino-400" href="{{ url('/details') }}">
+                    <!-- <a class="inline-flex mr-10 items-center text-sm font-bold text-rhino-700 hover:text-rhino-400" href="{{ url('/details') }}">
                       <span class="mr-2" data-config-id="text29">Services</span>
                       <svg width="16" height="16" viewbox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" data-config-id="svg-inline12">
                         <path d="M8.47315 10.36L12.2398 6.58667C12.3023 6.52469 12.3519 6.45096 12.3857 6.36972C12.4196 6.28848 12.437 6.20134 12.437 6.11333C12.437 6.02533 12.4196 5.93819 12.3857 5.85695C12.3519 5.77571 12.3023 5.70198 12.2398 5.64C12.1149 5.51583 11.9459 5.44614 11.7698 5.44614C11.5937 5.44614 11.4247 5.51583 11.2998 5.64L7.96648 8.94L4.66648 5.64C4.54157 5.51583 4.3726 5.44614 4.19648 5.44614C4.02036 5.44614 3.85139 5.51583 3.72648 5.64C3.66349 5.70174 3.61337 5.77537 3.57904 5.85662C3.54471 5.93787 3.52685 6.02513 3.52648 6.11333C3.52685 6.20154 3.54471 6.28879 3.57904 6.37004C3.61337 6.45129 3.66349 6.52492 3.72648 6.58667L7.49315 10.36C7.55557 10.4277 7.63134 10.4817 7.71568 10.5186C7.80001 10.5556 7.89108 10.5746 7.98315 10.5746C8.07521 10.5746 8.16628 10.5556 8.25062 10.5186C8.33495 10.4817 8.41072 10.4277 8.47315 10.36Z" fill="currentColor"></path>
                       </svg>
-                    </a>
+                    </a> -->
                     <a class="inline-flex mr-10 items-center text-sm font-bold text-rhino-700 hover:text-rhino-400" href="#" data-config-id="text35">Blog</a><a class="inline-flex mr-10 items-center text-sm font-bold text-rhino-700 hover:text-rhino-400" href="{{ url('/produits') }}" data-config-id="text36">Shop</a><a class="inline-flex items-center text-sm font-bold text-rhino-700 hover:text-rhino-400" href="#" data-config-id="text37">Contact</a>
                   </div>
                 </div>
@@ -237,7 +237,7 @@
                     </svg>
                   </a>
                 </li>
-                <li class="mb-4"><a class="flex items-center text-base font-bold text-rhino-700" href="{{ url('/details') }}" data-config-id="text38">Services</a></li>
+                <!-- <li class="mb-4"><a class="flex items-center text-base font-bold text-rhino-700" href="{{ url('/details') }}" data-config-id="text38">Services</a></li> -->
                 <li class="mb-4"><a class="flex items-center text-base font-bold text-rhino-700" href="#" data-config-id="text39">Blog</a></li>
                 <li class="mb-4"><a class="flex items-center text-base font-bold text-rhino-700" href="{{ url('/produits') }}" data-config-id="text40">Shop</a></li>
                 <li><a class="flex items-center text-base font-bold text-rhino-700 hover:text-rhino-400" href="#" data-config-id="text41">Contact</a></li>
