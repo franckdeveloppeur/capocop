@@ -1,7 +1,7 @@
     <footer class="py-12 px-4 bg-rhino-700">
           <div class="max-w-7xl mx-auto">
                 <div class="flex flex-wrap -mx-4 mb-8">
-                      <div class="w-full md:w-1/2 lg:w-1/4 px-4 mb-8"><a class="inline-block mb-4" href="#"><img src="https://www.capocop.com/wp-content/uploads/2023/01/logo-capocop.png" alt="Capocop" class="h-10"></a>
+                      <div class="w-full md:w-1/2 lg:w-1/4 px-4 mb-8"><a class="inline-block mb-4" href="#"><img src="https://static.shuffle.dev/uploads/files/c7/c7c78af8d50d10bfc4866553a6fc4d90b6d9c0cb/capocop.png" alt="Capocop" class="h-10"></a>
                             <p class="text-coolGray-400 text-sm mb-4">Votre partenaire de confiance pour l'énergie domestique et les fournitures au Cameroun</p>
                             <div class="flex gap-3"><a class="w-8 h-8 flex items-center justify-center bg-purple-600 rounded-full text-white hover:bg-purple-700 transition duration-200" href="#"><svg class="w-4 h-4" fill="currentColor" viewbox="0 0 24 24">
                                               <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"></path>
@@ -41,7 +41,7 @@
                       </div>
                 </div>
                 <div class="border-t border-coolGray-600 pt-8 text-center">
-                      <p class="text-coolGray-400 text-sm">© 2025 Capocop Cameroun. Tous droits réservés.</p>
+                      <p class="text-coolGray-400 text-sm">© 2025 Sonitelecom. Tous droits réservés.</p>
                 </div>
           </div>
     </footer>
