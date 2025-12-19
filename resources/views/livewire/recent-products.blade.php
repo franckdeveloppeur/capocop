@@ -106,26 +106,15 @@ new class extends Component {
                             @if($priceData['hasDiscount'])
                                 <div class="flex items-center justify-center gap-2 mb-2">
                                     <span class="text-sm text-gray-400 line-through">
-<<<<<<< HEAD
                                         {{ number_format($priceData['original'], 2) }} FCFA
                                     </span>
                                     <span class="text-lg text-orange-500 font-bold">
                                         {{ number_format($priceData['promo'], 2) }} FCFA
-=======
-                                        {{ number_format($priceData['original'], 2) }} XFA
-                                    </span>
-                                    <span class="text-lg text-orange-500 font-bold">
-                                        {{ number_format($priceData['promo'], 2) }} XFA
->>>>>>> 8b27d95feaa73f942382910535ae2175a14d38b3
                                     </span>
                                 </div>
                             @else
                                 <span class="block text-base text-rhino-300">
-<<<<<<< HEAD
                                     {{ number_format($priceData['original'], 2) }} FCFA
-=======
-                                    {{ number_format($priceData['original'], 2) }} XFA
->>>>>>> 8b27d95feaa73f942382910535ae2175a14d38b3
                                 </span>
                             @endif
                         </div>
