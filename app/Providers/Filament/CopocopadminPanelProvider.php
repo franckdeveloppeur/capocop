@@ -19,6 +19,9 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Tapp\FilamentAuthenticationLog\FilamentAuthenticationLogPlugin;
+use AchyutN\FilamentLogViewer\FilamentLogViewer;
+use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
+use pxlrbt\FilamentSpotlight\SpotlightPlugin;
 
 class CopocopadminPanelProvider extends PanelProvider
 {
@@ -57,6 +60,11 @@ class CopocopadminPanelProvider extends PanelProvider
              ->plugins([
             FilamentAuthenticationLogPlugin::make()
                 // ->panelName('admin') // Optional: specify the panel name if needed
+                ,
+                FilamentLogViewer::make(),
+                FilamentApexChartsPlugin::make(),
+                SpotlightPlugin::make(),
+
         ]);
     }
 }
