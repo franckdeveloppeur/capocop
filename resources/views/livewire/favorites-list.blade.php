@@ -189,7 +189,7 @@ new class extends Component {
         @else
             <div class="flex flex-wrap -mx-4">
                 @foreach($this->paginatedFavorites()['items'] as $product)
-                    <div class="w-full xs:w-1/2 md:w-1/3 lg:w-1/4 px-4">
+                    <div class="w-1/2 md:w-1/3 lg:w-1/4 px-2 sm:px-4">
                         <a class="block mb-10 group" href="/produit/{{ $product->slug }}">
                             <div class="w-full h-64 bg-coolGray-100 rounded-xl mb-3 flex items-center justify-center relative flex-1 p-6 border-2 border-transparent group-hover:border-purple-500 transition duration-150 overflow-hidden">
                                 <!-- Badge Section -->

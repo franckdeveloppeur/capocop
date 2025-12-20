@@ -17,7 +17,7 @@ new class extends Component {
 <div class="pb-8 w-full md:w-2/3 lg:w-3/4 px-4">
     @if(!empty($products['items']) && count($products['items']) > 0)
         <!-- Products Grid -->
-        <div class="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
             @foreach($products['items'] as $product)
                 @php
                     $media = optional($product->media->first());

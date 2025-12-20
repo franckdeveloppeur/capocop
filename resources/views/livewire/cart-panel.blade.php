@@ -136,7 +136,7 @@ new class extends Component {
 
             <div class="w-40">
                 <div class="py-4 px-6 border-b border-coolGray-200">
-                    <span class="text-rhino-800">Quantite</span>
+                    <span class="text-rhino-800">Quantité</span>
                 </div>
                 @foreach($items as $item)
                     <div class="py-4 px-6 border-b border-coolGray-200 h-32 flex items-center">
@@ -159,7 +159,7 @@ new class extends Component {
 
             <div class="w-40">
                 <div class="py-4 px-6 border-b border-coolGray-200">
-                    <span class="text-rhino-800">Subtotal</span>
+                    <span class="text-rhino-800">Sous-total</span>
                 </div>
                 @foreach($items as $item)
                     <div class="py-4 px-6 border-b border-coolGray-200 h-32 flex items-center">

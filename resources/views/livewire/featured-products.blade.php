@@ -106,7 +106,7 @@ new class extends Component {
 
         <div class="flex flex-wrap -mx-4">
             @foreach($this->products as $product)
-                <div class="w-full xs:w-1/2 md:w-1/3 lg:w-1/4 px-4 pb-8">
+                <div class="w-1/2 md:w-1/3 lg:w-1/4 px-2 sm:px-4 pb-4 sm:pb-8">
                     <a href="{{ route('products.show', $product->slug) }}" class="relative flex flex-col items-start h-72 py-6 px-6 bg-coolGray-100 rounded-xl border-2 border-transparent hover:border-purple-500 transition duration-150 group">
                         @if(!empty($product->price_promo) && $product->price_promo < $product->base_price)
                             <span class="relative z-10 inline-block py-1 px-3 text-2xs text-rhino-700 font-bold bg-white uppercase rounded-full">Sale</span>
