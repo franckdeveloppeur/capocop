@@ -6,21 +6,21 @@
                        badge: 'Nouveau',
                        title: 'Achetez maintenant, Payez progressivement',
                        description: 'Découvrez notre gamme complète de produits : bouteilles de gaz, plaques de cuisson, fournitures scolaires et bien plus. Profitez du paiement échelonné sur salaire pour faciliter vos achats.',
-                       image: 'https://static.shuffle.dev/uploads/files/c7/c7c78af8d50d10bfc4866553a6fc4d90b6d9c0cb/bouteille-removebg-preview.png',
+                       image: '/coleos-assets/nav/1.png',
                        bg: 'bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800'
                        },
                        {
                        badge: 'Promo',
                        title: 'Fournitures Scolaires à Prix Réduits',
                        description: 'Équipez vos enfants pour la rentrée avec notre large sélection de fournitures scolaires. Paiement flexible adapté à votre budget.',
-                       image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&amp;h=600&amp;fit=crop',
+                       image: '/coleos-assets/nav/2.png',
                        bg: 'bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800'
                        },
                        {
                        badge: 'Populaire',
                        title: 'Équipements de Cuisine Essentiels',
                        description: 'Plaques de cuisson, bouteilles de gaz et accessoires. Tout ce dont vous avez besoin pour votre cuisine, avec facilités de paiement.',
-                       image: 'https://images.unsplash.com/photo-1556911220-bff31c812dba?w=600&amp;h=600&amp;fit=crop',
+                       image: '/coleos-assets/nav/3.png',
                        bg: 'bg-gradient-to-br from-blue-600 via-purple-600 to-purple-700'
                        }
                        ],

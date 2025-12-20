@@ -248,4 +248,141 @@
             </div>
           </nav>
         </div>
+        <!-- Mobile Bottom Navigation -->
+        <div class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg md:hidden">
+          <div class="flex justify-around items-center h-16 px-2">
+            <!-- Home Tab -->
+            <a href="{{ url('/') }}" class="mobile-nav-item flex flex-col items-center justify-center flex-1 py-2 transition-all duration-300 {{ request()->is('/') ? 'active' : '' }}">
+              <div class="relative">
+                <svg class="w-6 h-6 mb-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                </svg>
+                <span class="absolute -top-1 -right-1 w-2 h-2 bg-purple-600 rounded-full opacity-0 transition-all duration-300 pulse-dot"></span>
+              </div>
+              <span class="text-xs font-medium transition-all duration-300">Home</span>
+            </a>
+
+            <!-- Shop Tab -->
+            <a href="{{ url('/produits') }}" class="mobile-nav-item flex flex-col items-center justify-center flex-1 py-2 transition-all duration-300 {{ request()->is('produits*') ? 'active' : '' }}">
+              <div class="relative">
+                <svg class="w-6 h-6 mb-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                </svg>
+                <span class="absolute -top-1 -right-1 w-2 h-2 bg-purple-600 rounded-full opacity-0 transition-all duration-300 pulse-dot"></span>
+              </div>
+              <span class="text-xs font-medium transition-all duration-300">Shop</span>
+            </a>
+
+            <!-- Favoris Tab -->
+            <a href="{{ route('favoris') }}" class="mobile-nav-item flex flex-col items-center justify-center flex-1 py-2 transition-all duration-300 {{ request()->is('favoris*') ? 'active' : '' }}">
+              <div class="relative">
+                <svg class="w-6 h-6 mb-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                </svg>
+                <span class="absolute -top-1 -right-1 w-2 h-2 bg-purple-600 rounded-full opacity-0 transition-all duration-300 pulse-dot"></span>
+              </div>
+              <span class="text-xs font-medium transition-all duration-300">Favoris</span>
+            </a>
+
+            <!-- Cart Tab -->
+            <a href="{{ url('/panier') }}" class="mobile-nav-item flex flex-col items-center justify-center flex-1 py-2 transition-all duration-300 {{ request()->is('panier*') ? 'active' : '' }}">
+              <div class="relative">
+                <svg class="w-6 h-6 mb-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+                <span class="absolute -top-1 -right-1 w-2 h-2 bg-purple-600 rounded-full opacity-0 transition-all duration-300 pulse-dot"></span>
+              </div>
+              <span class="text-xs font-medium transition-all duration-300">Panier</span>
+            </a>
+          </div>
+        </div>
+
+        <style>
+          /* Mobile Navigation Styles */
+          .mobile-nav-item {
+            color: #94a3b8;
+            position: relative;
+          }
+
+          .mobile-nav-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%) scaleX(0);
+            width: 60%;
+            height: 3px;
+            background: linear-gradient(90deg, #7c3aed, #a855f7);
+            border-radius: 0 0 3px 3px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          }
+
+          .mobile-nav-item:hover::before,
+          .mobile-nav-item.active::before {
+            transform: translateX(-50%) scaleX(1);
+          }
+
+          .mobile-nav-item:active {
+            transform: scale(0.95);
+          }
+
+          .mobile-nav-item svg {
+            filter: drop-shadow(0 0 0 transparent);
+          }
+
+          .mobile-nav-item:hover svg,
+          .mobile-nav-item.active svg {
+            color: #7c3aed;
+            filter: drop-shadow(0 2px 4px rgba(124, 58, 237, 0.3));
+            transform: translateY(-2px);
+          }
+
+          .mobile-nav-item:hover span,
+          .mobile-nav-item.active span {
+            color: #7c3aed;
+            font-weight: 600;
+          }
+
+          .mobile-nav-item.active .pulse-dot {
+            opacity: 1;
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+          }
+
+          @keyframes pulse {
+            0%, 100% {
+              opacity: 1;
+              transform: scale(1);
+            }
+            50% {
+              opacity: 0.5;
+              transform: scale(1.3);
+            }
+          }
+
+          /* Add padding to body to prevent content from being hidden behind fixed nav */
+          @media (max-width: 767px) {
+            body {
+              padding-bottom: 64px;
+            }
+          }
+
+          /* Ripple effect on tap */
+          .mobile-nav-item::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(124, 58, 237, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+          }
+
+          .mobile-nav-item:active::after {
+            width: 100px;
+            height: 100px;
+          }
+        </style>
       </section>
