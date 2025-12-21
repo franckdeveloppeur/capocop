@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Order;
+use App\Notifications\OrderCreatedNotification;
 
 class OrderObserver
 {
@@ -10,15 +11,15 @@ class OrderObserver
     {
         // Send notification to user
         if ($order->user) {
-            // Notification will be sent via queue
+            $order->user->notify(new OrderCreatedNotification($order));
         }
     }
 
     public function updated(Order $order): void
     {
         // Send notification on status change
-        if ($order->wasChanged('status')) {
-            // Handle status change notifications
+        if ($order->wasChanged('status') && $order->user) {
+            $order->user->notify(new \App\Notifications\OrderStatusChangedNotification($order));
         }
     }
 }

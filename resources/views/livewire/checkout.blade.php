@@ -5,7 +5,10 @@ use App\Services\CartService;
 use App\Models\Address;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\InstallmentPlan;
+use App\Models\Payment;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 new class extends Component {
     // Étapes actives
@@ -33,6 +36,12 @@ new class extends Component {
     public string $paymentMethod = '';
     public bool $isNewCapocopClient = true;
     public string $capocopId = '';
+    
+    // Paiement échelonné
+    public bool $useInstallment = false;
+    public int $installmentMonths = 12;
+    public float $minInstallmentAmount = 5000;
+    public float $firstInstallmentAmount = 0;
     
     // Carte de crédit
     public string $cardName = '';
@@ -70,9 +79,16 @@ new class extends Component {
         if (auth()->check()) {
             $user = auth()->user();
             $this->email = $user->email ?? '';
-            $this->firstName = $user->first_name ?? '';
-            $this->lastName = $user->last_name ?? '';
+            // Split name if it exists, otherwise use empty strings
+            $nameParts = $user->name ? explode(' ', $user->name, 2) : ['', ''];
+            $this->firstName = $nameParts[0] ?? '';
+            $this->lastName = $nameParts[1] ?? '';
             $this->phone = $user->phone ?? '';
+        }
+
+        // Initialize installment calculation
+        if ($this->canUseInstallment()) {
+            $this->calculateInstallmentAmounts();
         }
     }
 
@@ -87,6 +103,46 @@ new class extends Component {
     {
         $discount = $this->subtotal * ($this->discountPercent / 100);
         $this->total = $this->subtotal + $this->shippingCost - $discount;
+        
+        // Calculate first installment if using installment plan
+        if ($this->useInstallment && $this->canUseInstallment()) {
+            $this->calculateInstallmentAmounts();
+        } else {
+            $this->firstInstallmentAmount = 0;
+        }
+    }
+
+    public function canUseInstallment(): bool
+    {
+        return $this->total >= $this->minInstallmentAmount;
+    }
+
+    public function calculateInstallmentAmounts(): void
+    {
+        if (!$this->canUseInstallment()) {
+            $this->useInstallment = false;
+            $this->firstInstallmentAmount = 0;
+            return;
+        }
+
+        // Calculate monthly amount (total divided by number of months)
+        $monthlyAmount = $this->total / $this->installmentMonths;
+        // First payment is the same as monthly amount
+        $this->firstInstallmentAmount = round($monthlyAmount, 2);
+    }
+
+    public function toggleInstallment(): void
+    {
+        if ($this->canUseInstallment()) {
+            $this->useInstallment = !$this->useInstallment;
+            $this->calculateTotal();
+        }
+    }
+
+    public function setInstallmentMonths(int $months): void
+    {
+        $this->installmentMonths = $months;
+        $this->calculateTotal();
     }
 
     public function toggleStep(int $step)
@@ -170,6 +226,8 @@ new class extends Component {
         }
 
         try {
+            DB::beginTransaction();
+
             $address = Address::create([
                 'user_id' => auth()->id(),
                 'full_name' => $this->firstName . ' ' . $this->lastName,
@@ -189,6 +247,7 @@ new class extends Component {
                 'discount_amount' => $this->subtotal * ($this->discountPercent / 100),
                 'status' => 'pending',
                 'payment_method' => $this->paymentMethod === 'capocop' ? 'wallet' : $this->paymentMethod,
+                'is_installment' => $this->useInstallment && $this->canUseInstallment(),
             ]);
 
             foreach ($this->cartItems as $item) {
@@ -201,6 +260,47 @@ new class extends Component {
                 ]);
             }
 
+            // Create payment for first installment or full payment
+            $paymentAmount = ($this->useInstallment && $this->canUseInstallment()) 
+                ? $this->firstInstallmentAmount 
+                : $this->total;
+
+            $payment = Payment::create([
+                'order_id' => $order->id,
+                'amount' => $paymentAmount,
+                'method' => $this->paymentMethod === 'capocop' ? 'wallet' : $this->paymentMethod,
+                'status' => 'success', // In production, this should be validated
+                'transaction_ref' => 'TXN-' . Str::upper(Str::random(12)),
+                'meta' => [
+                    'is_first_installment' => $this->useInstallment && $this->canUseInstallment(),
+                    'installment_months' => $this->useInstallment ? $this->installmentMonths : null,
+                ],
+            ]);
+
+            // Create installment plan if using installment payment
+            if ($this->useInstallment && $this->canUseInstallment()) {
+                $plan = InstallmentPlan::create([
+                    'order_id' => $order->id,
+                    'total_amount' => $this->total,
+                    'deposit_amount' => $this->firstInstallmentAmount,
+                    'number_of_installments' => $this->installmentMonths,
+                    'interval_days' => 30, // Monthly (30 days)
+                    'status' => 'active',
+                ]);
+
+                // Link first installment to payment (the observer creates installments)
+                $firstInstallment = $plan->installments()->orderBy('due_date')->first();
+                if ($firstInstallment && $payment) {
+                    $firstInstallment->update([
+                        'payment_id' => $payment->id,
+                        'paid_at' => now(),
+                        'status' => 'paid',
+                    ]);
+                }
+            }
+
+            DB::commit();
+
             CartService::clear();
             $this->dispatch('cart:updated', count: 0);
 
@@ -208,6 +308,8 @@ new class extends Component {
             return redirect()->route('orders.confirmation', $order->id);
 
         } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Order creation failed: ' . $e->getMessage());
             $this->addError('general', 'Une erreur est survenue lors de la confirmation de votre commande.');
         }
     }
@@ -601,6 +703,96 @@ new class extends Component {
                             @error('paymentMethod') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                         </div>
                     </div>
+
+                    <!-- Paiement échelonné -->
+                    @if($this->canUseInstallment())
+                    <div class="bg-coolGray-50 rounded-md mt-8">
+                        <div class="step-header p-6 border-b border-coolGray-200 flex justify-between items-center" wire:click="toggleStep(5)">
+                            <h2 class="text-rhino-700 text-xl font-semibold font-heading">Paiement échelonné</h2>
+                            <div class="flex items-center gap-3">
+                                <div class="bg-green-200 p-3 flex items-center justify-center rounded">
+                                    <span class="text-xs font-bold text-rhino-800">05</span>
+                                </div>
+                                <svg class="w-5 h-5 text-rhino-400 chevron-rotate {{ $this->isStepOpen(5) ? 'open' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="step-section {{ $this->isStepOpen(5) ? 'expanded p-6' : 'collapsed' }}">
+                            <div class="mb-6">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <div class="relative">
+                                        <input 
+                                            wire:model="useInstallment" 
+                                            wire:change="toggleInstallment"
+                                            class="custom-checkbox-1 opacity-0 absolute z-10 h-5 w-5 top-0 left-0 cursor-pointer" 
+                                            type="checkbox"
+                                            id="useInstallment"
+                                        >
+                                        <div class="border border-coolGray-200 w-5 h-5 flex justify-center items-center rounded-sm bg-white {{ $useInstallment ? 'bg-green-500 border-green-500' : '' }}">
+                                            @if($useInstallment)
+                                            <svg class="text-white" width="10" height="7" viewBox="0 0 10 7" fill="none">
+                                                <path d="M9.76764 0.22597C9.45824 -0.0754185 8.95582 -0.0752285 8.64601 0.22597L3.59787 5.13702L1.35419 2.95437C1.04438 2.65298 0.542174 2.65298 0.23236 2.95437C-0.0774534 3.25576 -0.0774534 3.74431 0.23236 4.0457L3.03684 6.77391C3.19165 6.92451 3.39464 7 3.59765 7C3.80067 7 4.00386 6.9247 4.15867 6.77391L9.76764 1.31727C10.0775 1.01609 10.0775 0.52734 9.76764 0.22597Z" fill="currentColor"></path>
+                                            </svg>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <label for="useInstallment" class="block text-gray-700 cursor-pointer font-medium">
+                                        Payer en plusieurs fois (12 mois)
+                                    </label>
+                                </div>
+
+                                @if($useInstallment)
+                                <div class="bg-green-50 rounded-md p-4 border border-green-200 mb-4">
+                                    <div class="flex items-start gap-2 mb-3">
+                                        <svg class="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <div>
+                                            <p class="text-green-800 font-semibold text-sm">Paiement échelonné activé</p>
+                                            <p class="text-green-700 text-xs mt-1">Répartissez votre paiement sur {{ $installmentMonths }} mois</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-2 gap-4 mt-4">
+                                        <div class="bg-white rounded-md p-3 border border-green-100">
+                                            <p class="text-xs text-gray-600 mb-1">Montant total</p>
+                                            <p class="text-lg font-bold text-gray-800">{{ number_format($total, 0, ',', ' ') }} FCFA</p>
+                                        </div>
+                                        <div class="bg-white rounded-md p-3 border border-green-100">
+                                            <p class="text-xs text-gray-600 mb-1">Par mois</p>
+                                            <p class="text-lg font-bold text-green-600">{{ number_format($total / $installmentMonths, 0, ',', ' ') }} FCFA</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 pt-4 border-t border-green-200">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <span class="text-sm text-gray-700">Premier paiement (aujourd'hui)</span>
+                                            <span class="text-sm font-bold text-green-700">{{ number_format($firstInstallmentAmount, 0, ',', ' ') }} FCFA</span>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm text-gray-700">Échéances restantes</span>
+                                            <span class="text-sm font-bold text-gray-800">{{ $installmentMonths - 1 }} × {{ number_format($total / $installmentMonths, 0, ',', ' ') }} FCFA</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                @else
+                                <div class="bg-blue-50 rounded-md p-4 border border-blue-200">
+                                    <div class="flex items-start gap-2">
+                                        <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <div>
+                                            <p class="text-blue-800 font-medium text-sm">Paiement en une seule fois</p>
+                                            <p class="text-blue-700 text-xs mt-1">Vous paierez le montant total aujourd'hui : <strong>{{ number_format($total, 0, ',', ' ') }} FCFA</strong></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    @endif
                 </div>
 
                 <!-- Colonne 3: Récapitulatif -->
@@ -681,10 +873,27 @@ new class extends Component {
                                 <p class="text-orange-500 text-xs font-bold">-{{ $discountPercent }}%</p>
                             </div>
                             @endif
+                            @if($useInstallment && $this->canUseInstallment())
+                            <div class="bg-green-50 rounded-md p-4 border border-green-200 mb-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm text-gray-700 font-medium">Paiement échelonné (12 mois)</span>
+                                    <span class="text-xs text-green-600 font-semibold">ACTIVÉ</span>
+                                </div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-xs text-gray-600">Premier paiement (aujourd'hui)</span>
+                                    <span class="text-sm font-bold text-green-700">{{ number_format($firstInstallmentAmount, 0, ',', ' ') }} FCFA</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-gray-600">Montant total</span>
+                                    <span class="text-sm font-bold text-gray-800">{{ number_format($total, 0, ',', ' ') }} FCFA</span>
+                                </div>
+                            </div>
+                            @else
                             <div class="flex justify-between items-center flex-wrap gap-4 mb-6">
                                 <h2 class="text-coolGray-800 text-lg font-semibold">Total</h2>
                                 <p class="text-purple-500 text-lg font-semibold">{{ number_format($total, 0, ',', ' ') }} FCFA</p>
                             </div>
+                            @endif
 
                             <!-- Code promo et commentaire -->
                             <div class="rounded-md bg-white border border-coolGray-200 p-6 flex flex-col gap-4 mb-4">
