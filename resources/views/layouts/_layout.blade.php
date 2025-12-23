@@ -28,6 +28,7 @@
     </header>
     <div class=" @yield('firstDivClasses')">
         @livewire('notifications')
+        <x-toast-notification />
         @yield('body')
     </div>
    
