@@ -131,11 +131,15 @@ new class extends Component {
         $this->firstInstallmentAmount = round($monthlyAmount, 2);
     }
 
-    public function toggleInstallment(): void
+    public function updatedUseInstallment(): void
     {
-        if ($this->canUseInstallment()) {
-            $this->useInstallment = !$this->useInstallment;
-            $this->calculateTotal();
+        // Ensure total is calculated first
+        $this->calculateTotal();
+        
+        // If installment was enabled but total is too low, disable it
+        if ($this->useInstallment && !$this->canUseInstallment()) {
+            $this->useInstallment = false;
+            $this->firstInstallmentAmount = 0;
         }
     }
 
@@ -720,16 +724,15 @@ new class extends Component {
                         </div>
                         <div class="step-section {{ $this->isStepOpen(5) ? 'expanded p-6' : 'collapsed' }}">
                             <div class="mb-6">
-                                <div class="flex items-center gap-3 mb-4">
+                                <div class="flex items-center gap-3 mb-4 cursor-pointer" wire:click="$toggle('useInstallment')">
                                     <div class="relative">
                                         <input 
                                             wire:model="useInstallment" 
-                                            wire:change="toggleInstallment"
                                             class="custom-checkbox-1 opacity-0 absolute z-10 h-5 w-5 top-0 left-0 cursor-pointer" 
                                             type="checkbox"
                                             id="useInstallment"
                                         >
-                                        <div class="border border-coolGray-200 w-5 h-5 flex justify-center items-center rounded-sm bg-white {{ $useInstallment ? 'bg-green-500 border-green-500' : '' }}">
+                                        <div class="border border-coolGray-200 w-5 h-5 flex justify-center items-center rounded-sm bg-white transition-colors duration-200 {{ $useInstallment ? 'bg-green-500 border-green-500' : '' }}">
                                             @if($useInstallment)
                                             <svg class="text-white" width="10" height="7" viewBox="0 0 10 7" fill="none">
                                                 <path d="M9.76764 0.22597C9.45824 -0.0754185 8.95582 -0.0752285 8.64601 0.22597L3.59787 5.13702L1.35419 2.95437C1.04438 2.65298 0.542174 2.65298 0.23236 2.95437C-0.0774534 3.25576 -0.0774534 3.74431 0.23236 4.0457L3.03684 6.77391C3.19165 6.92451 3.39464 7 3.59765 7C3.80067 7 4.00386 6.9247 4.15867 6.77391L9.76764 1.31727C10.0775 1.01609 10.0775 0.52734 9.76764 0.22597Z" fill="currentColor"></path>

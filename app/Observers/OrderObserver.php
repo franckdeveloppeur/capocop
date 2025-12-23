@@ -19,7 +19,8 @@ class OrderObserver
     {
         // Send notification on status change
         if ($order->wasChanged('status') && $order->user) {
-            $order->user->notify(new \App\Notifications\OrderStatusChangedNotification($order));
+            $oldStatus = $order->getOriginal('status');
+            $order->user->notify(new \App\Notifications\OrderStatusChangedNotification($order, $oldStatus));
         }
     }
 }
