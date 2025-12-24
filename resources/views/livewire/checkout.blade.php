@@ -494,7 +494,7 @@ new class extends Component {
                         </div>
                         <div class="step-section {{ $this->isStepOpen(2) ? 'expanded p-6' : 'collapsed' }}">
                             <div class="mb-6">
-                                <span class="block mb-2 text-coolGray-700 font-medium text-sm">Livraison standard</span>
+                                <span class="block mb-2 text-coolGray-700 font-medium text-sm">Retrait en point de vente</span>
                                 <div class="flex items-center gap-3 cursor-pointer" wire:click="setShippingMethod('standard')">
                                     <div class="relative">
                                         <input class="custom-checkbox-1 opacity-0 absolute z-10 h-5 w-5 top-0 left-0" type="checkbox" {{ $shippingMethod === 'standard' ? 'checked' : '' }}>

@@ -115,12 +115,4 @@ new class extends Component {
     </div>
 </div>
 
-<script>
-document.addEventListener('livewire:init', () => {
-    Livewire.on('toast', (data) => {
-        if (window.showToast) {
-            window.showToast(data[0].type, data[0].title, data[0].message);
-        }
-    });
-});
-</script>
+{{-- Le composant toast-notification gère maintenant directement les événements Livewire --}}

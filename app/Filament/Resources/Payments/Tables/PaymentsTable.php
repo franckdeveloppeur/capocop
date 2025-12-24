@@ -1,81 +1,56 @@
 <?php
 
-namespace App\Filament\Resources\Orders\Tables;
+namespace App\Filament\Resources\Payments\Tables;
 
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
-class OrdersTable
+class PaymentsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
             ->columns([
                 TextColumn::make('id')
-                    ->label('N° Commande')
+                    ->label('ID')
                     ->searchable()
                     ->sortable()
                     ->copyable()
-                    ->weight('bold')
-                    ->limit(8),
+                    ->limit(8)
+                    ->weight('bold'),
 
-                TextColumn::make('user.name')
+                TextColumn::make('order.id')
+                    ->label('Commande')
+                    ->searchable()
+                    ->sortable()
+                    ->formatStateUsing(fn ($state) => '#' . substr($state, 0, 8))
+                    ->icon('heroicon-o-shopping-bag')
+                    ->color('primary'),
+
+                TextColumn::make('order.user.name')
                     ->label('Client')
                     ->searchable()
                     ->sortable()
                     ->placeholder('Non spécifié')
-                    ->icon('heroicon-o-user'),
-
-                TextColumn::make('shop.name')
-                    ->label('Boutique')
-                    ->searchable()
-                    ->sortable()
-                    ->placeholder('Non spécifié')
-                    ->icon('heroicon-o-building-storefront')
+                    ->icon('heroicon-o-user')
                     ->toggleable(),
 
-                TextColumn::make('total_amount')
-                    ->label('Montant total')
+                TextColumn::make('amount')
+                    ->label('Montant')
                     ->money('XOF')
                     ->sortable()
                     ->weight('bold')
                     ->color('success')
                     ->alignEnd(),
 
-                TextColumn::make('status')
-                    ->label('Statut')
-                    ->searchable()
-                    ->sortable()
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'pending' => 'warning',
-                        'processing' => 'info',
-                        'paid' => 'success',
-                        'shipped' => 'primary',
-                        'delivered' => 'success',
-                        'cancelled' => 'danger',
-                        'refunded' => 'gray',
-                        default => 'gray',
-                    })
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'pending' => 'En attente',
-                        'processing' => 'En traitement',
-                        'paid' => 'Payée',
-                        'shipped' => 'Expédiée',
-                        'delivered' => 'Livrée',
-                        'cancelled' => 'Annulée',
-                        'refunded' => 'Remboursée',
-                        default => $state,
-                    }),
-
-                TextColumn::make('payment_method')
-                    ->label('Paiement')
+                TextColumn::make('method')
+                    ->label('Méthode')
                     ->searchable()
                     ->sortable()
                     ->badge()
@@ -84,27 +59,37 @@ class OrdersTable
                         'mobile_money' => 'Mobile Money',
                         'card' => 'Carte',
                         'wallet' => 'Portefeuille',
-                        'installment' => 'Échelonné',
                         default => 'Non spécifié',
-                    })
-                    ->toggleable(),
+                    }),
 
-                TextColumn::make('items_count')
-                    ->label('Articles')
-                    ->counts('items')
+                TextColumn::make('status')
+                    ->label('Statut')
+                    ->searchable()
+                    ->sortable()
                     ->badge()
-                    ->color('info')
-                    ->alignCenter()
-                    ->sortable(),
+                    ->color(fn (string $state): string => match ($state) {
+                        'pending' => 'warning',
+                        'success' => 'success',
+                        'failed' => 'danger',
+                        'refunded' => 'gray',
+                        default => 'gray',
+                    })
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'pending' => 'En attente',
+                        'success' => 'Réussi',
+                        'failed' => 'Échoué',
+                        'refunded' => 'Remboursé',
+                        default => $state,
+                    }),
 
-                IconColumn::make('is_installment')
-                    ->label('Échelonné')
-                    ->boolean()
-                    ->trueIcon('heroicon-o-check-circle')
-                    ->falseIcon('heroicon-o-x-circle')
-                    ->trueColor('success')
-                    ->falseColor('gray')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('transaction_ref')
+                    ->label('Référence')
+                    ->searchable()
+                    ->sortable()
+                    ->copyable()
+                    ->limit(20)
+                    ->icon('heroicon-o-document-duplicate')
+                    ->toggleable(),
 
                 TextColumn::make('created_at')
                     ->label('Date')
@@ -124,33 +109,21 @@ class OrdersTable
                     ->label('Statut')
                     ->options([
                         'pending' => 'En attente',
-                        'processing' => 'En traitement',
-                        'paid' => 'Payée',
-                        'shipped' => 'Expédiée',
-                        'delivered' => 'Livrée',
-                        'cancelled' => 'Annulée',
-                        'refunded' => 'Remboursée',
+                        'success' => 'Réussi',
+                        'failed' => 'Échoué',
+                        'refunded' => 'Remboursé',
                     ])
                     ->multiple()
                     ->preload(),
 
-                SelectFilter::make('payment_method')
+                SelectFilter::make('method')
                     ->label('Méthode de paiement')
                     ->options([
                         'mobile_money' => 'Mobile Money',
                         'card' => 'Carte bancaire',
                         'wallet' => 'Portefeuille',
-                        'installment' => 'Paiement échelonné',
                     ])
                     ->multiple()
-                    ->preload(),
-
-                SelectFilter::make('is_installment')
-                    ->label('Paiement échelonné')
-                    ->options([
-                        1 => 'Oui',
-                        0 => 'Non',
-                    ])
                     ->preload(),
             ])
             ->recordActions([
@@ -158,6 +131,8 @@ class OrdersTable
                     ->label('Voir'),
                 EditAction::make()
                     ->label('Modifier'),
+                DeleteAction::make()
+                    ->label('Supprimer'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -169,3 +144,4 @@ class OrdersTable
             ->poll('30s');
     }
 }
+

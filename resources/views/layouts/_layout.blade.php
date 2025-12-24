@@ -27,7 +27,7 @@
         @include('components.navigation-bar')
     </header>
     <div class=" @yield('firstDivClasses')">
-        @livewire('notifications')
+       
         <x-toast-notification />
         @yield('body')
     </div>
@@ -131,6 +131,8 @@
     @vite(['resources/js/app.js'])
     @filamentScripts
     @livewireScripts
+    
+    @stack('scripts')
 
 </body>
 
