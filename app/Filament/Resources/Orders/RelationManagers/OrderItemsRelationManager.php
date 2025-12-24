@@ -3,13 +3,13 @@
 namespace App\Filament\Resources\Orders\RelationManagers;
 
 use App\Models\OrderItem;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
-use Filament\Tables\Actions\CreateAction;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -22,6 +22,7 @@ class OrderItemsRelationManager extends RelationManager
     public function form(Schema $schema): Schema
     {
         return $schema
+            ->columns(2)
             ->components([
                 Select::make('product_id')
                     ->label('Produit')
@@ -30,6 +31,7 @@ class OrderItemsRelationManager extends RelationManager
                     ->searchable()
                     ->preload()
                     ->reactive()
+                    ->columnSpanFull()
                     ->afterStateUpdated(function ($state, callable $set) {
                         if ($state) {
                             $product = \App\Models\Product::find($state);
@@ -50,6 +52,7 @@ class OrderItemsRelationManager extends RelationManager
                     ->searchable()
                     ->preload()
                     ->nullable()
+                    ->columnSpanFull()
                     ->visible(fn ($get) => $get('product_id') !== null),
 
                 TextInput::make('quantity')
@@ -81,7 +84,8 @@ class OrderItemsRelationManager extends RelationManager
                     ->numeric()
                     ->prefix('XOF')
                     ->disabled()
-                    ->dehydrated(),
+                    ->dehydrated()
+                    ->columnSpanFull(),
             ]);
     }
 

@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\Payments\Schemas;
 
-use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class PaymentInfolist
@@ -16,6 +16,7 @@ class PaymentInfolist
                 Section::make('Statut du Paiement')
                     ->description('Informations sur l\'état actuel du paiement')
                     ->icon('heroicon-o-information-circle')
+                    ->columnSpanFull()
                     ->collapsible()
                     ->schema([
                         TextEntry::make('id')
@@ -61,6 +62,7 @@ class PaymentInfolist
                     ->description('Détails de la commande associée')
                     ->icon('heroicon-o-shopping-cart')
                     ->collapsible()
+                    ->columnSpanFull()
                     ->schema([
                         TextEntry::make('order.id')
                             ->label('Numéro de commande')
@@ -140,7 +142,7 @@ class PaymentInfolist
                             ->placeholder('-')
                             ->columnSpanFull()
                             ->copyable()
-                            ->monoFont(),
+                            ->extraAttributes(['class' => 'font-mono text-xs']),
                     ]),
 
                 // === SECTION 4: DATES ===

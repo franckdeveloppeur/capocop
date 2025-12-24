@@ -112,7 +112,7 @@ new class extends Component {
                             <span class="relative z-10 inline-block py-1 px-3 text-2xs text-rhino-700 font-bold bg-white uppercase rounded-full">Sale</span>
                         @endif
                         <img class="absolute top-0 left-1/2 mt-5 transform -translate-x-1/2" src="{{ $product->image }}" alt="{{ $product->title }}" loading="lazy">
-                        <div class="relative z-10 w-full px-8 mt-auto text-center">
+                        <div class="relative z-10 w-full px-8 mt-auto text-left md:text-center">
                             <span class="block text-base text-rhino-500 mb-1">{{ $product->title }}</span>
                             @if(!empty($product->price_promo) && $product->price_promo < $product->base_price)
                                 <span class="block text-base text-rhino-300">

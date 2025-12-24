@@ -16,4 +16,19 @@ class ViewOrder extends ViewRecord
             EditAction::make(),
         ];
     }
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        // Charger les relations nécessaires pour éviter les N+1 queries
+        $this->record->load([
+            'installmentPlan.installments',
+            'payments',
+            'items',
+            'user',
+            'shop',
+            'address',
+        ]);
+
+        return $data;
+    }
 }
