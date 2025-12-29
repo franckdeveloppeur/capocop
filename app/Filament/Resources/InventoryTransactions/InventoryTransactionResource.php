@@ -22,6 +22,16 @@ class InventoryTransactionResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCube;
 
+    public static function getModelLabel(): string
+    {
+        return __('Transaction d\'inventaire');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Transactions d\'inventaire');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return InventoryTransactionForm::configure($schema);

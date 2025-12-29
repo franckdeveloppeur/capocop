@@ -22,6 +22,16 @@ class ProduitVariantResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCircleStack;
 
+    public static function getModelLabel(): string
+    {
+        return __('Variante de produit');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Variantes de produit');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return ProduitVariantForm::configure($schema);

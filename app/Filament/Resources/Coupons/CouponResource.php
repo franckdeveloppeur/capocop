@@ -22,6 +22,16 @@ class CouponResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTicket;
 
+    public static function getModelLabel(): string
+    {
+        return __('Coupon');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Coupons');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return CouponForm::configure($schema);

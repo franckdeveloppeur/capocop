@@ -23,6 +23,16 @@ class OrderResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingCart;
 
+    public static function getModelLabel(): string
+    {
+        return __('Commande');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Commandes');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return OrderForm::configure($schema);

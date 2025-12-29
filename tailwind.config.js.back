@@ -67,38 +67,6 @@ export default {
                     DEFAULT: '#002E5B',
                 },
 
-                // Indigo remplacé par la couleur primaire Capocop (bleu foncé)
-                // Toutes les classes indigo-* utiliseront maintenant la couleur Capocop (#002E5B)
-                indigo: {
-                    50: '#E6EDF5',
-                    100: '#CCDBEB',
-                    200: '#99B7D7',
-                    300: '#6693C3',
-                    400: '#336FAF',
-                    500: '#002E5B', // Bleu foncé Capocop (couleur principale)
-                    600: '#002549',
-                    700: '#001C37',
-                    800: '#001325',
-                    900: '#000A13',
-                    DEFAULT: '#002E5B',
-                },
-
-                // Purple/Violet remplacé par la couleur primaire Capocop (bleu foncé)
-                // Toutes les classes purple-* utiliseront maintenant la couleur Capocop (#002E5B)
-                purple: {
-                    50: '#E6EDF5',
-                    100: '#CCDBEB',
-                    200: '#99B7D7',
-                    300: '#6693C3',
-                    400: '#336FAF',
-                    500: '#002E5B', // Bleu foncé Capocop (couleur principale)
-                    600: '#002549',
-                    700: '#001C37',
-                    800: '#001325',
-                    900: '#000A13',
-                    DEFAULT: '#002E5B',
-                },
-
                 // Couleur secondaire - Vert Capocop
                 secondary: {
                     50: '#E6FFE6',

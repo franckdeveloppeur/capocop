@@ -23,6 +23,16 @@ class ProductResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingBag;
 
+    public static function getModelLabel(): string
+    {
+        return __('Produit');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Produits');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return ProductForm::configure($schema);
