@@ -2,13 +2,7 @@
 
 namespace App\Filament\Resources\Payments;
 
-use App\Filament\Resources\Payments\Pages\CreatePayment;
-use App\Filament\Resources\Payments\Pages\EditPayment;
 use App\Filament\Resources\Payments\Pages\ManagePayments;
-use App\Filament\Resources\Payments\Pages\ViewPayment;
-use App\Filament\Resources\Payments\Schemas\PaymentForm;
-use App\Filament\Resources\Payments\Schemas\PaymentInfolist;
-use App\Filament\Resources\Payments\Tables\PaymentsTable;
 use App\Models\Payment;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -34,26 +28,23 @@ class PaymentResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return PaymentForm::configure($schema);
+        return $schema;
     }
 
     public static function infolist(Schema $schema): Schema
     {
-        return PaymentInfolist::configure($schema);
+        return $schema;
     }
 
     public static function table(Table $table): Table
     {
-        return PaymentsTable::configure($table);
+        return $table;
     }
 
     public static function getPages(): array
     {
         return [
             'index' => ManagePayments::route('/'),
-            'create' => CreatePayment::route('/create'),
-            'view' => ViewPayment::route('/{record}'),
-            'edit' => EditPayment::route('/{record}/edit'),
         ];
     }
 }

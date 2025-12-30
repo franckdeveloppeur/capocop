@@ -6,9 +6,9 @@ use App\Models\Installment;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Notification as BaseNotification;
 
-class InstallmentPaidNotification extends Notification implements ShouldQueue
+class InstallmentPaidNotification extends BaseNotification implements ShouldQueue
 {
     use Queueable;
 
@@ -54,15 +54,18 @@ class InstallmentPaidNotification extends Notification implements ShouldQueue
             ->salutation('Cordialement, L\'équipe Capocop');
     }
 
-    public function toArray(object $notifiable): array
+    public function toDatabase(object $notifiable): array
     {
-        return [
-            'installment_id' => $this->installment->id,
-            'plan_id' => $this->installment->plan_id,
-            'amount' => $this->installment->amount,
-            'paid_at' => $this->installment->paid_at?->toDateTimeString(),
-            'status' => $this->installment->status,
-        ];
+        $plan = $this->installment->plan;
+        $paidCount = $plan->installments()->where('status', 'paid')->count();
+        $totalCount = $plan->number_of_installments;
+        $isAdmin = $notifiable->role === 'admin';
+
+        return \Filament\Notifications\Notification::make()
+            ->title($isAdmin ? 'Échéance payée' : 'Votre échéance a été payée')
+            ->body('Échéance #' . $paidCount . '/' . $totalCount . ' - ' . number_format($this->installment->amount, 0, ',', ' ') . ' FCFA - Commande #' . $plan->order_id)
+            ->success()
+            ->getDatabaseMessage();
     }
 }
 

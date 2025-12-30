@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\InstallmentPlan;
+use App\Models\User;
 use App\Notifications\InstallmentPlanCreatedNotification;
 use Carbon\Carbon;
 
@@ -29,6 +30,12 @@ class InstallmentPlanObserver
         // Send notification to user
         if ($plan->order && $plan->order->user) {
             $plan->order->user->notify(new InstallmentPlanCreatedNotification($plan));
+        }
+
+        // Send notification to all admins
+        $admins = User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new InstallmentPlanCreatedNotification($plan));
         }
     }
 }

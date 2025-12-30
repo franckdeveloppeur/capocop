@@ -3,12 +3,13 @@
 namespace App\Notifications;
 
 use App\Models\Payment;
+use Filament\Notifications\Notification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Notification as BaseNotification;
 
-class PaymentSuccessNotification extends Notification implements ShouldQueue
+class PaymentSuccessNotification extends BaseNotification implements ShouldQueue
 {
     use Queueable;
 
@@ -29,13 +30,15 @@ class PaymentSuccessNotification extends Notification implements ShouldQueue
             ->line('Référence: ' . $this->payment->transaction_ref);
     }
 
-    public function toArray(object $notifiable): array
+    public function toDatabase(object $notifiable): array
     {
-        return [
-            'payment_id' => $this->payment->id,
-            'amount' => $this->payment->amount,
-            'transaction_ref' => $this->payment->transaction_ref,
-        ];
+        $isAdmin = $notifiable->role === 'admin';
+        
+        return Notification::make()
+            ->title($isAdmin ? 'Paiement réussi reçu' : 'Paiement réussi')
+            ->body('Paiement de ' . number_format($this->payment->amount, 0, ',', ' ') . ' XOF effectué avec succès. Référence: ' . $this->payment->transaction_ref)
+            ->success()
+            ->getDatabaseMessage();
     }
 }
 

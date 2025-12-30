@@ -3,12 +3,13 @@
 namespace App\Notifications;
 
 use App\Models\Order;
+use Filament\Notifications\Notification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Notification as BaseNotification;
 
-class OrderCreatedNotification extends Notification implements ShouldQueue
+class OrderCreatedNotification extends BaseNotification implements ShouldQueue
 {
     use Queueable;
 
@@ -30,13 +31,15 @@ class OrderCreatedNotification extends Notification implements ShouldQueue
             ->action('Voir la commande', url('/orders/' . $this->order->id));
     }
 
-    public function toArray(object $notifiable): array
+    public function toDatabase(object $notifiable): array
     {
-        return [
-            'order_id' => $this->order->id,
-            'total_amount' => $this->order->total_amount,
-            'status' => $this->order->status,
-        ];
+        $isAdmin = $notifiable->role === 'admin';
+        
+        return Notification::make()
+            ->title($isAdmin ? 'Nouvelle commande créée' : 'Commande créée avec succès')
+            ->body('Commande #' . $this->order->id . ' - Montant: ' . number_format($this->order->total_amount, 0, ',', ' ') . ' XOF')
+            ->success()
+            ->getDatabaseMessage();
     }
 }
 

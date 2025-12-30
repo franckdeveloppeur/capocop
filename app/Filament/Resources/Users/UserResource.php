@@ -33,6 +33,24 @@ class UserResource extends Resource
         return __('Utilisateurs');
     }
 
+    protected static ?string $recordTitleAttribute = 'name';
+
+    protected static ?int $globalSearchSort = 3;
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'email', 'phone'];
+    }
+
+    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        return [
+            'Email' => $record->email,
+            'Rôle' => $record->role,
+            'Téléphone' => $record->phone ?? 'N/A',
+        ];
+    }
+
     public static function form(Schema $schema): Schema
     {
         return UserForm::configure($schema);

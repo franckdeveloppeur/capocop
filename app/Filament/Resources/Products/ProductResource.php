@@ -33,6 +33,29 @@ class ProductResource extends Resource
         return __('Produits');
     }
 
+    protected static ?string $recordTitleAttribute = 'title';
+
+    protected static ?int $globalSearchSort = 2;
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['title', 'slug', 'description', 'shop.name'];
+    }
+
+    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        return [
+            'Boutique' => $record->shop->name ?? 'N/A',
+            'Prix' => number_format($record->base_price, 0, ',', ' ') . ' XOF',
+            'Statut' => $record->status,
+        ];
+    }
+
+    public static function getGlobalSearchEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with(['shop']);
+    }
+
     public static function form(Schema $schema): Schema
     {
         return ProductForm::configure($schema);

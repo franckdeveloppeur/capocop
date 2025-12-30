@@ -32,6 +32,26 @@ class CouponResource extends Resource
         return __('Coupons');
     }
 
+    protected static ?string $recordTitleAttribute = 'code';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['code', 'type'];
+    }
+
+    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        $now = now();
+        $isValid = $record->valid_from <= $now && $record->valid_until >= $now;
+        $isAvailable = $record->usage_limit === null || $record->used_count < $record->usage_limit;
+        
+        return [
+            'Type' => $record->type,
+            'Valeur' => number_format($record->value, 0, ',', ' ') . ($record->type === 'percentage' ? '%' : ' XOF'),
+            'Statut' => ($isValid && $isAvailable) ? 'Disponible' : 'Non disponible',
+        ];
+    }
+
     public static function form(Schema $schema): Schema
     {
         return CouponForm::configure($schema);

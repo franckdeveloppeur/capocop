@@ -3,12 +3,13 @@
 namespace App\Notifications;
 
 use App\Models\InstallmentPlan;
+use Filament\Notifications\Notification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Notification as BaseNotification;
 
-class InstallmentPlanCreatedNotification extends Notification implements ShouldQueue
+class InstallmentPlanCreatedNotification extends BaseNotification implements ShouldQueue
 {
     use Queueable;
 
@@ -41,15 +42,17 @@ class InstallmentPlanCreatedNotification extends Notification implements ShouldQ
             ->salutation('Cordialement, L\'équipe Capocop');
     }
 
-    public function toArray(object $notifiable): array
+    public function toDatabase(object $notifiable): array
     {
-        return [
-            'plan_id' => $this->plan->id,
-            'order_id' => $this->plan->order_id,
-            'total_amount' => $this->plan->total_amount,
-            'number_of_installments' => $this->plan->number_of_installments,
-            'status' => $this->plan->status,
-        ];
+        $firstInstallment = $this->plan->installments()->orderBy('due_date')->first();
+        $monthlyAmount = ($this->plan->total_amount - $this->plan->deposit_amount) / $this->plan->number_of_installments;
+        $isAdmin = $notifiable->role === 'admin';
+
+        return Notification::make()
+            ->title($isAdmin ? 'Plan de paiement échelonné créé' : 'Votre plan de paiement échelonné a été créé')
+            ->body('Commande #' . $this->plan->order_id . ' - ' . $this->plan->number_of_installments . ' échéances de ' . number_format($monthlyAmount, 0, ',', ' ') . ' FCFA')
+            ->success()
+            ->getDatabaseMessage();
     }
 }
 

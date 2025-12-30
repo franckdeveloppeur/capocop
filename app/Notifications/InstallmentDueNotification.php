@@ -6,9 +6,9 @@ use App\Models\Installment;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Notification as BaseNotification;
 
-class InstallmentDueNotification extends Notification implements ShouldQueue
+class InstallmentDueNotification extends BaseNotification implements ShouldQueue
 {
     use Queueable;
 
@@ -44,15 +44,20 @@ class InstallmentDueNotification extends Notification implements ShouldQueue
             ->salutation('Cordialement, L\'équipe Capocop');
     }
 
-    public function toArray(object $notifiable): array
+    public function toDatabase(object $notifiable): array
     {
-        return [
-            'installment_id' => $this->installment->id,
-            'plan_id' => $this->installment->plan_id,
-            'amount' => $this->installment->amount,
-            'due_date' => $this->installment->due_date->toDateString(),
-            'status' => $this->installment->status,
-        ];
+        $plan = $this->installment->plan;
+        $remainingInstallments = $plan->installments()
+            ->where('status', 'pending')
+            ->where('id', '!=', $this->installment->id)
+            ->count();
+        $isAdmin = $notifiable->role === 'admin';
+
+        return \Filament\Notifications\Notification::make()
+            ->title($isAdmin ? 'Échéance à venir' : 'Rappel : Échéance de paiement')
+            ->body('Échéance de ' . number_format($this->installment->amount, 0, ',', ' ') . ' FCFA le ' . $this->installment->due_date->format('d/m/Y') . ' - Commande #' . $plan->order_id . ' (' . $remainingInstallments . ' échéances restantes)')
+            ->warning()
+            ->getDatabaseMessage();
     }
 }
 

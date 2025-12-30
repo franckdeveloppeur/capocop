@@ -32,6 +32,27 @@ class ReviewResource extends Resource
         return __('Avis');
     }
 
+    protected static ?string $recordTitleAttribute = 'title';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['title', 'body', 'user.name', 'product.title'];
+    }
+
+    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        return [
+            'Utilisateur' => $record->user->name ?? 'N/A',
+            'Produit' => $record->product->title ?? 'N/A',
+            'Note' => $record->rating . '/5',
+        ];
+    }
+
+    public static function getGlobalSearchEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with(['user', 'product']);
+    }
+
     public static function form(Schema $schema): Schema
     {
         return ReviewForm::configure($schema);

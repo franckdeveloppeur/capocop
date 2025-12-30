@@ -6,7 +6,6 @@ use App\Filament\Resources\Orders\Pages\CreateOrder;
 use App\Filament\Resources\Orders\Pages\EditOrder;
 use App\Filament\Resources\Orders\Pages\ListOrders;
 use App\Filament\Resources\Orders\Pages\ViewOrder;
-use App\Filament\Resources\Orders\RelationManagers\OrderItemsRelationManager;
 use App\Filament\Resources\Orders\Schemas\OrderForm;
 use App\Filament\Resources\Orders\Schemas\OrderInfolist;
 use App\Filament\Resources\Orders\Tables\OrdersTable;
@@ -23,14 +22,32 @@ class OrderResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingCart;
 
-    public static function getModelLabel(): string
+    protected static ?string $recordTitleAttribute = 'id';
+
+    protected static ?int $globalSearchSort = 1;
+
+    public static function getGloballySearchableAttributes(): array
     {
-        return __('Commande');
+        return ['id', 'user.name', 'user.email', 'address.city', 'status', 'payment_method'];
     }
 
-    public static function getPluralModelLabel(): string
+    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
     {
-        return __('Commandes');
+        return [
+            'Client' => $record->user->name ?? 'N/A',
+            'Statut' => $record->status,
+            'Montant' => number_format($record->total_amount, 0, ',', ' ') . ' XOF',
+        ];
+    }
+
+    public static function getGlobalSearchEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with(['user', 'address']);
+    }
+
+    public static function getGlobalSearchResultTitle(\Illuminate\Database\Eloquent\Model $record): string
+    {
+        return 'Commande #' . strtoupper(substr($record->id, 0, 8)) . ' - ' . ($record->user->name ?? 'N/A');
     }
 
     public static function form(Schema $schema): Schema
@@ -51,7 +68,7 @@ class OrderResource extends Resource
     public static function getRelations(): array
     {
         return [
-            OrderItemsRelationManager::class,
+            //
         ];
     }
 

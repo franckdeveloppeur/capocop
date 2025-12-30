@@ -29,7 +29,7 @@
               Commande #{{ strtoupper(substr($order->id, 0, 8)) }}
             </h2>
             <div class="flex flex-wrap gap-2">
-              <a class="py-2 px-4 text-purple-500 border border-gray-200 rounded-sm text-center text-sm font-medium shadow-md hover:bg-purple-500 hover:text-white transition duration-200" href="#">
+              <a class="py-2 px-4 text-purple-500 border border-gray-200 rounded-sm text-center text-sm font-medium shadow-md hover:bg-purple-500 hover:text-white transition duration-200" href="{{ route('orders.invoice', $order->id) }}" target="_blank">
                 Facture
               </a>
               @if($order->shipment && $order->shipment->tracking_number)
@@ -71,7 +71,12 @@
               <div class="w-full md:w-auto px-4 mb-6 md:mb-0">
                 <div class="bg-gray-100 w-20 h-20 rounded-lg flex items-center justify-center overflow-hidden">
                   @if($item->product && $item->product->media->isNotEmpty())
-                    <img src="{{ asset('storage/' . $item->product->media->first()->path) }}" alt="{{ $item->product->title }}" class="w-full h-full object-cover">
+                    @php
+                      $firstMedia = $item->product->media->first();
+                      $path = data_get($firstMedia, 'custom_properties.full_path') ?? ('products/' . $firstMedia->file_name);
+                      $imageUrl = asset('storage/' . $path);
+                    @endphp
+                    <img src="{{ $imageUrl }}" alt="{{ $item->product->title }}" class="w-full h-full object-cover" onerror="this.src='{{ asset('images/no-image.png') }}'">
                   @else
                     <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>

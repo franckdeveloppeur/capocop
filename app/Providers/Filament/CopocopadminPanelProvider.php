@@ -40,9 +40,15 @@ class CopocopadminPanelProvider extends PanelProvider
             ->pages([
                 Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
+                \App\Filament\Widgets\StatsOverview::class,
+                \App\Filament\Widgets\StatsCapocopOverview::class,
+                \App\Filament\Widgets\UserChart::class,
+                \App\Filament\Widgets\OrderChart::class,
+                \App\Filament\Widgets\ProductsChart::class,
+                \App\Filament\Widgets\LastestOrdersOverview::class,
             ])
+            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -57,14 +63,18 @@ class CopocopadminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-             ->plugins([
-            FilamentAuthenticationLogPlugin::make()
-                // ->panelName('admin') // Optional: specify the panel name if needed
-                ,
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
+            ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
+            ->globalSearchFieldKeyBindingSuffix()
+            ->plugins([
+                FilamentAuthenticationLogPlugin::make()
+                    // ->panelName('admin') // Optional: specify the panel name if needed
+                    ,
                 FilamentLogViewer::make(),
                 FilamentApexChartsPlugin::make(),
                 SpotlightPlugin::make(),
 
-        ]);
+            ]);
     }
 }

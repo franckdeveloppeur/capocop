@@ -32,6 +32,27 @@ class ProduitVariantResource extends Resource
         return __('Variantes de produit');
     }
 
+    protected static ?string $recordTitleAttribute = 'sku';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['sku', 'product.title'];
+    }
+
+    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        return [
+            'Produit' => $record->product->title ?? 'N/A',
+            'Prix' => number_format($record->price, 0, ',', ' ') . ' XOF',
+            'Stock' => $record->stock,
+        ];
+    }
+
+    public static function getGlobalSearchEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with(['product']);
+    }
+
     public static function form(Schema $schema): Schema
     {
         return ProduitVariantForm::configure($schema);

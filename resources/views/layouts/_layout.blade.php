@@ -131,8 +131,6 @@
     @vite(['resources/js/app.js'])
     @filamentScripts
     @livewireScripts
-    
-    @stack('scripts')
 
 </body>
 

@@ -23,6 +23,7 @@
         {{ $slot }}
 
         @livewire('notifications')
+        <x-toast-notification />
 
         @filamentScripts
         @vite('resources/js/app.js')

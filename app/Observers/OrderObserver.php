@@ -3,7 +3,9 @@
 namespace App\Observers;
 
 use App\Models\Order;
+use App\Models\User;
 use App\Notifications\OrderCreatedNotification;
+use App\Notifications\OrderStatusChangedNotification;
 
 class OrderObserver
 {
@@ -13,6 +15,12 @@ class OrderObserver
         if ($order->user) {
             $order->user->notify(new OrderCreatedNotification($order));
         }
+
+        // Send notification to all admins
+        $admins = User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new OrderCreatedNotification($order));
+        }
     }
 
     public function updated(Order $order): void
@@ -20,7 +28,13 @@ class OrderObserver
         // Send notification on status change
         if ($order->wasChanged('status') && $order->user) {
             $oldStatus = $order->getOriginal('status');
-            $order->user->notify(new \App\Notifications\OrderStatusChangedNotification($order, $oldStatus));
+            $order->user->notify(new OrderStatusChangedNotification($order, $oldStatus));
+
+            // Send notification to all admins
+            $admins = User::where('role', 'admin')->get();
+            foreach ($admins as $admin) {
+                $admin->notify(new OrderStatusChangedNotification($order, $oldStatus));
+            }
         }
     }
 }

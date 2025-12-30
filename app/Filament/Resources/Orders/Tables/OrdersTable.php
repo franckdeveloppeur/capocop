@@ -8,7 +8,6 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class OrdersTable
@@ -18,154 +17,49 @@ class OrdersTable
         return $table
             ->columns([
                 TextColumn::make('id')
-                    ->label('N° Commande')
-                    ->searchable()
-                    ->sortable()
-                    ->copyable()
-                    ->weight('bold')
-                    ->limit(8),
-
+                    ->label('ID')
+                    ->searchable(),
                 TextColumn::make('user.name')
-                    ->label('Client')
-                    ->searchable()
-                    ->sortable()
-                    ->placeholder('Non spécifié')
-                    ->icon('heroicon-o-user'),
-
+                    ->searchable(),
                 TextColumn::make('shop.name')
-                    ->label('Boutique')
-                    ->searchable()
-                    ->sortable()
-                    ->placeholder('Non spécifié')
-                    ->icon('heroicon-o-building-storefront')
-                    ->toggleable(),
-
+                    ->searchable(),
+                TextColumn::make('address.id')
+                    ->searchable(),
                 TextColumn::make('total_amount')
-                    ->label('Montant total')
-                    ->money('XOF')
-                    ->sortable()
-                    ->weight('bold')
-                    ->color('success')
-                    ->alignEnd(),
-
-                TextColumn::make('status')
-                    ->label('Statut')
-                    ->searchable()
-                    ->sortable()
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'pending' => 'warning',
-                        'processing' => 'info',
-                        'paid' => 'success',
-                        'shipped' => 'primary',
-                        'delivered' => 'success',
-                        'cancelled' => 'danger',
-                        'refunded' => 'gray',
-                        default => 'gray',
-                    })
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'pending' => 'En attente',
-                        'processing' => 'En traitement',
-                        'paid' => 'Payée',
-                        'shipped' => 'Expédiée',
-                        'delivered' => 'Livrée',
-                        'cancelled' => 'Annulée',
-                        'refunded' => 'Remboursée',
-                        default => $state,
-                    }),
-
-                TextColumn::make('payment_method')
-                    ->label('Paiement')
-                    ->searchable()
-                    ->sortable()
-                    ->badge()
-                    ->color('info')
-                    ->formatStateUsing(fn (?string $state): string => match ($state) {
-                        'mobile_money' => 'Mobile Money',
-                        'card' => 'Carte',
-                        'wallet' => 'Portefeuille',
-                        'installment' => 'Échelonné',
-                        default => 'Non spécifié',
-                    })
-                    ->toggleable(),
-
-                TextColumn::make('items_count')
-                    ->label('Articles')
-                    ->counts('items')
-                    ->badge()
-                    ->color('info')
-                    ->alignCenter()
+                    ->numeric()
                     ->sortable(),
-
+                TextColumn::make('shipping_amount')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('discount_amount')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('status')
+                    ->searchable(),
+                TextColumn::make('payment_method')
+                    ->searchable(),
                 IconColumn::make('is_installment')
-                    ->label('Échelonné')
-                    ->boolean()
-                    ->trueIcon('heroicon-o-check-circle')
-                    ->falseIcon('heroicon-o-x-circle')
-                    ->trueColor('success')
-                    ->falseColor('gray')
-                    ->toggleable(isToggledHiddenByDefault: true),
-
+                    ->boolean(),
                 TextColumn::make('created_at')
-                    ->label('Date')
-                    ->dateTime('d/m/Y H:i')
+                    ->dateTime()
                     ->sortable()
-                    ->toggleable()
-                    ->icon('heroicon-o-calendar'),
-
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->label('Modifié')
-                    ->dateTime('d/m/Y H:i')
+                    ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('status')
-                    ->label('Statut')
-                    ->options([
-                        'pending' => 'En attente',
-                        'processing' => 'En traitement',
-                        'paid' => 'Payée',
-                        'shipped' => 'Expédiée',
-                        'delivered' => 'Livrée',
-                        'cancelled' => 'Annulée',
-                        'refunded' => 'Remboursée',
-                    ])
-                    ->multiple()
-                    ->preload(),
-
-                SelectFilter::make('payment_method')
-                    ->label('Méthode de paiement')
-                    ->options([
-                        'mobile_money' => 'Mobile Money',
-                        'card' => 'Carte bancaire',
-                        'wallet' => 'Portefeuille',
-                        'installment' => 'Paiement échelonné',
-                    ])
-                    ->multiple()
-                    ->preload(),
-
-                SelectFilter::make('is_installment')
-                    ->label('Paiement échelonné')
-                    ->options([
-                        1 => 'Oui',
-                        0 => 'Non',
-                    ])
-                    ->preload(),
+                //
             ])
             ->recordActions([
-                ViewAction::make()
-                    ->label('Voir'),
-                EditAction::make()
-                    ->label('Modifier'),
+                ViewAction::make(),
+                EditAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make()
-                        ->label('Supprimer'),
+                    DeleteBulkAction::make(),
                 ]),
-            ])
-            ->defaultSort('created_at', 'desc')
-            ->poll('30s');
+            ]);
     }
 }

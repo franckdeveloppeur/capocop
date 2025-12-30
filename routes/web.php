@@ -39,6 +39,11 @@ Route::get('/commande/{order}/confirmation', function ($order) {
 })->name('orders.confirmation');
 
 Route::get('/commandes', [OrderController::class, 'viewCommandes'])->name('commandes')->middleware(['auth']);
+
+// Facture de commande
+Route::get('/orders/{order}/invoice', [\App\Http\Controllers\OrderInvoiceController::class, 'show'])
+    ->name('orders.invoice')
+    ->middleware(['auth']);
 // routes pour les favoris 
 Route::get('/favoris', function () {
     return view('produits.favoris');
@@ -50,6 +55,6 @@ Route::middleware([
     'verified',
 ])->group(function () {
     Route::get('/dashboard', function () {
-        return view('dashboard');
+        return redirect()->route('filament.myAccount.pages.dashboard');
     })->name('dashboard');
 });

@@ -3,7 +3,9 @@
 namespace App\Observers;
 
 use App\Models\Installment;
+use App\Models\User;
 use App\Notifications\InstallmentPaidNotification;
+use App\Notifications\InstallmentDueNotification;
 use Carbon\Carbon;
 
 class InstallmentObserver
@@ -19,9 +21,15 @@ class InstallmentObserver
                 $plan->update(['status' => 'completed']);
             }
 
-            // Send payment confirmation notification
+            // Send payment confirmation notification to user
             if ($plan->order && $plan->order->user) {
                 $plan->order->user->notify(new InstallmentPaidNotification($installment));
+            }
+
+            // Send notification to all admins
+            $admins = User::where('role', 'admin')->get();
+            foreach ($admins as $admin) {
+                $admin->notify(new InstallmentPaidNotification($installment));
             }
         }
 
@@ -38,10 +46,18 @@ class InstallmentObserver
             $reminderDate = Carbon::parse($installment->due_date)->subDays(3);
             
             if ($reminderDate->isFuture() && $installment->plan && $installment->plan->order && $installment->plan->order->user) {
+                // Send notification to user
                 $installment->plan->order->user->notify(
-                    (new \App\Notifications\InstallmentDueNotification($installment))
-                        ->delay($reminderDate)
+                    (new InstallmentDueNotification($installment))->delay($reminderDate)
                 );
+
+                // Also notify admins
+                $admins = User::where('role', 'admin')->get();
+                foreach ($admins as $admin) {
+                    $admin->notify(
+                        (new InstallmentDueNotification($installment))->delay($reminderDate)
+                    );
+                }
             }
         }
     }
