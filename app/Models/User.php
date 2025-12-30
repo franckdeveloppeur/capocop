@@ -15,11 +15,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Rappasoft\LaravelAuthenticationLog\Traits\AuthenticationLoggable;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 #[ObservedBy([UserObserver::class])]
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, HasProfilePhoto, Notifiable, TwoFactorAuthenticatable, HasUuids,AuthenticationLoggable;
+    use HasApiTokens, HasFactory, HasProfilePhoto, Notifiable, TwoFactorAuthenticatable, HasUuids, AuthenticationLoggable, LogsActivity;
 
     protected $fillable = [
         'name',
@@ -107,5 +109,19 @@ class User extends Authenticatable
     public function generateApiToken(): string
     {
         return $this->createToken('api')->plainTextToken;
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['name', 'email', 'phone', 'is_active', 'role'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn(string $eventName) => match($eventName) {
+                'created' => __('Utilisateur créé'),
+                'updated' => __('Utilisateur modifié'),
+                'deleted' => __('Utilisateur supprimé'),
+                default => __('Activité sur l\'utilisateur'),
+            });
     }
 }

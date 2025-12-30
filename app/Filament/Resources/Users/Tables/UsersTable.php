@@ -58,6 +58,11 @@ class UsersTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                \Filament\Actions\Action::make('activities')
+                    ->label(__('Activités'))
+                    ->icon('heroicon-o-clock')
+                    ->color('info')
+                    ->url(fn ($record) => \App\Filament\Resources\Users\UserResource::getUrl('activities', ['record' => $record])),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

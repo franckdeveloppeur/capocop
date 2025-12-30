@@ -11,11 +11,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use App\Observers\OrderObserver;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 #[ObservedBy([OrderObserver::class])]
 class Order extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory, HasUuids, LogsActivity;
 
     protected $fillable = [
         'user_id',
@@ -79,9 +81,18 @@ class Order extends Model
         return $this->belongsToMany(Coupon::class)->withPivot('discount_amount')->withTimestamps();
     }
 
-    public function returns(): HasMany
+    public function getActivitylogOptions(): LogOptions
     {
-        return $this->hasMany(OrderReturn::class);
+        return LogOptions::defaults()
+            ->logOnly(['user_id', 'shop_id', 'total_amount', 'shipping_amount', 'discount_amount', 'status', 'payment_method', 'is_installment'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn(string $eventName) => match($eventName) {
+                'created' => __('Commande créée'),
+                'updated' => __('Commande modifiée'),
+                'deleted' => __('Commande supprimée'),
+                default => __('Activité sur la commande'),
+            });
     }
 }
 

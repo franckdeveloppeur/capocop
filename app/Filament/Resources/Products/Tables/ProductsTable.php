@@ -146,6 +146,11 @@ class ProductsTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                Action::make('activities')
+                    ->label(__('Activités'))
+                    ->icon('heroicon-o-clock')
+                    ->color('info')
+                    ->url(fn ($record) => \App\Filament\Resources\Products\ProductResource::getUrl('activities', ['record' => $record])),
                 Action::make('archive')
                     ->label('Archiver')
                     ->icon('heroicon-o-archive-box')

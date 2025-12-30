@@ -12,11 +12,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Str;
 use App\Observers\ProductObserver;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 #[ObservedBy([ProductObserver::class])]
 class Product extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory, HasUuids, LogsActivity;
 
     protected $fillable = [
         'shop_id',
@@ -225,6 +227,20 @@ class Product extends Model
                 ELSE 4
             END
         ", [$term, $likeTerm, $likeTerm]);
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['shop_id', 'title', 'slug', 'base_price', 'price_promo', 'status', 'stock_manage'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn(string $eventName) => match($eventName) {
+                'created' => __('Produit créé'),
+                'updated' => __('Produit modifié'),
+                'deleted' => __('Produit supprimé'),
+                default => __('Activité sur le produit'),
+            });
     }
 }
 

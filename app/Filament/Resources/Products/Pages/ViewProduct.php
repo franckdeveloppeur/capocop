@@ -14,6 +14,11 @@ class ViewProduct extends ViewRecord
     {
         return [
             EditAction::make(),
+            \Filament\Actions\Action::make('activities')
+                ->label(__('Activités'))
+                ->icon('heroicon-o-clock')
+                ->color('info')
+                ->url(fn () => ProductResource::getUrl('activities', ['record' => $this->record])),
         ];
     }
 

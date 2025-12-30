@@ -12,15 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('order_returns', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->foreignUuid('order_id')->constrained()->onDelete('cascade');
-            $table->foreignUuid('order_item_id')->nullable()->constrained('order_items')->onDelete('cascade');
-            $table->foreignUuid('user_id')->constrained()->onDelete('cascade');
-            $table->string('reason')->nullable();
-            $table->text('description')->nullable();
-            $table->enum('status', ['pending', 'approved', 'rejected', 'processing', 'completed', 'cancelled'])->default('pending');
-            $table->decimal('refund_amount', 10, 2)->nullable();
-            $table->text('admin_notes')->nullable();
+            $table->id();
             $table->timestamps();
         });
     }

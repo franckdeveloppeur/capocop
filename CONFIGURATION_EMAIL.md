@@ -124,3 +124,4 @@ Votre application envoie des emails pour :
 Toutes ces notifications utilisent la configuration email définie dans `.env`.
 
 
+
