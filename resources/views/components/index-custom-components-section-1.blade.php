@@ -1,4 +1,4 @@
-<section class="relative overflow-hidden" x-data="{
+<section class="relative overflow-hidden w-full max-w-full" x-data="{
                        currentSlide: 0,
                        autoplayInterval: null,
                        slides: [
@@ -13,15 +13,22 @@
                        badge: 'Promo',
                        title: 'Fournitures Scolaires à Prix Réduits',
                        description: 'Équipez vos enfants pour la rentrée avec notre large sélection de fournitures scolaires. Paiement flexible adapté à votre budget.',
-                       image: '/coleos-assets/nav/2.png',
+                       image: '/coleos-assets/nav/6.png',
                        bg: 'bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800'
                        },
                        {
                        badge: 'Populaire',
                        title: 'Équipements de Cuisine Essentiels',
                        description: 'Plaques de cuisson, bouteilles de gaz et accessoires. Tout ce dont vous avez besoin pour votre cuisine, avec facilités de paiement.',
-                       image: '/coleos-assets/nav/3.png',
+                       image: '/coleos-assets/nav/2.png',
                        bg: 'bg-gradient-to-br from-blue-600 via-purple-600 to-purple-700'
+                       },
+                       {
+                       badge: 'Capocop',
+                       title: 'Devenez client Capocop et menez une vie paisible',
+                       description: 'Rejoignez la communauté Capocop et profitez d\'une expérience d\'achat sereine. Qualité garantie, service client exceptionnel et solutions adaptées à vos besoins quotidiens.',
+                       image: '/coleos-assets/nav/3.png',
+                       bg: 'bg-gradient-to-br from-green-600 via-emerald-600 to-teal-700'
                        }
                        ],
                        startAutoplay() {
@@ -44,13 +51,13 @@
                        }" x-init="startAutoplay()" @mouseenter="stopAutoplay()" @mouseleave="startAutoplay()">
       
         <!-- Slides -->
-        <div class="relative min-h-[600px]">
+        <div class="relative min-h-[600px] w-full overflow-hidden">
           <template x-for="(slide, index) in slides" :key="index">
-            <div x-show="currentSlide === index" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 transform translate-x-full" x-transition:enter-end="opacity-100 transform translate-x-0" x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100 transform translate-x-0" x-transition:leave-end="opacity-0 transform -translate-x-full" class="absolute inset-0 w-full" :class="slide.bg">
+            <div x-show="currentSlide === index" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 transform translate-x-full" x-transition:enter-end="opacity-100 transform translate-x-0" x-transition:leave="transition ease-in duration-500" x-transition:leave-start="opacity-100 transform translate-x-0" x-transition:leave-end="opacity-0 transform -translate-x-full" class="absolute inset-0 w-full max-w-full" :class="slide.bg">
       
-              <div class="relative h-full px-4 py-16 md:py-20 lg:py-24">
-                <div class="max-w-7xl mx-auto h-full">
-                  <div class="flex flex-wrap items-center h-full -mx-4">
+              <div class="relative h-full px-4 py-16 md:py-20 lg:py-24 w-full max-w-full overflow-hidden">
+                <div class="max-w-7xl mx-auto h-full w-full">
+                  <div class="flex flex-wrap items-center h-full -mx-4 w-full">
       
                     <!-- Contenu texte -->
                     <div class="w-full lg:w-1/2 px-4 mb-8 lg:mb-0">

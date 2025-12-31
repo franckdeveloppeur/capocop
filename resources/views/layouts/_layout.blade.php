@@ -22,7 +22,7 @@
 
 </head>
 
-<body class="antialiased  @yield('bodyClasses')">
+<body class="antialiased overflow-x-hidden @yield('bodyClasses')">
     <header>
         @include('components.navigation-bar')
     </header>

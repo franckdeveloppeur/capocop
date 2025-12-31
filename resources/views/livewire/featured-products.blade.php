@@ -98,30 +98,116 @@ new class extends Component {
 ?>
 
 <section class="py-12">
-    <div class="">
+    <div class="container mx-auto px-4 md:px-6 max-w-[95%] xl:max-w-[98%]">
         <div class="text-center mb-8">
             <h2 class="text-4xl md:text-5xl font-heading text-rhino-700 font-semibold">Découvrez notre catalogue</h2>
             <p class="text-coolGray-500">Une large sélection de produits pour répondre à tous vos besoins : énergie domestique, équipements et fournitures scolaires</p>
         </div>
 
-        <div class="flex flex-wrap -mx-4">
+        <div class="flex flex-wrap -mx-2 md:-mx-4">
             @foreach($this->products as $product)
-                <div class="w-1/2 md:w-1/3 lg:w-1/4 px-2 sm:px-4 pb-4 sm:pb-8">
-                    <a href="{{ route('products.show', $product->slug) }}" class="relative flex flex-col items-start h-72 py-6 px-6 bg-coolGray-100 rounded-xl border-2 border-transparent hover:border-purple-500 transition duration-150 group">
-                        @if(!empty($product->price_promo) && $product->price_promo < $product->base_price)
-                            <span class="relative z-10 inline-block py-1 px-3 text-2xs text-rhino-700 font-bold bg-white uppercase rounded-full">Sale</span>
-                        @endif
-                        <img class="absolute top-0 left-1/2 mt-5 transform -translate-x-1/2" src="{{ $product->image }}" alt="{{ $product->title }}" loading="lazy">
-                        <div class="relative z-10 w-full px-8 mt-auto md:text-center">
-                            <span class="block text-base text-rhino-500 mb-1">{{ $product->title }}</span>
-                            @if(!empty($product->price_promo) && $product->price_promo < $product->base_price)
-                                <span class="block text-base text-rhino-300">
-                                    <span class="line-through mr-2">{{ number_format($product->base_price, 0, ',', ' ') }} FCFA</span>
-                                    <span class="text-rhino-600 font-semibold">{{ number_format($product->price_promo, 0, ',', ' ') }} FCFA</span>
-                                </span>
-                            @else
-                                <span class="block text-base text-rhino-300">{{ number_format($product->base_price, 0, ',', ' ') }} FCFA</span>
+                @php
+                    $hasPromo = !empty($product->price_promo) && $product->price_promo < $product->base_price;
+                    $discountPercent = $hasPromo ? round((($product->base_price - $product->price_promo) / $product->base_price) * 100) : 0;
+                @endphp
+                <div class="w-1/2 md:w-1/3 lg:w-1/4 px-1 md:px-2 lg:px-4 pb-3 md:pb-6">
+                    <!-- Version Mobile (xs à lg) -->
+                    <a href="{{ route('products.show', $product->slug) }}" class="block lg:hidden h-full bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden group flex flex-col">
+                        <!-- Image Container -->
+                        <div class="relative h-40 bg-gray-50 flex items-center justify-center overflow-hidden flex-shrink-0">
+                            <img 
+                                class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300" 
+                                src="{{ $product->image }}" 
+                                alt="{{ $product->title }}" 
+                                loading="lazy"
+                            >
+                            
+                            <!-- Badge Sale (gauche) -->
+                            @if($hasPromo)
+                                <div class="absolute top-2 left-2 bg-white rounded-full px-2 py-1 shadow-sm z-10">
+                                    <span class="text-[10px] font-bold text-rhino-700 uppercase">Sale</span>
+                                </div>
+                                
+                                <!-- Badge Discount Percentage (droite) -->
+                                <div class="absolute top-2 right-2 bg-orange-500 text-white px-2 py-1 rounded-md shadow-sm z-10">
+                                    <span class="text-[10px] font-bold">-{{ $discountPercent }}%</span>
+                                </div>
                             @endif
+                        </div>
+                        
+                        <!-- Product Info - SÉPARÉ de l'image -->
+                        <div class="p-3 bg-white flex flex-col flex-grow">
+                            <h3 class="text-xs font-semibold text-rhino-700 mb-2 line-clamp-2 min-h-[2rem] group-hover:text-purple-600 transition-colors">
+                                {{ $product->title }}
+                            </h3>
+                            
+                            <!-- Pricing - Hauteur fixe pour uniformiser -->
+                            <div class="flex flex-col gap-0.5 min-h-[2rem] justify-end">
+                                @if($hasPromo)
+                                    <span class="text-[10px] text-gray-400 line-through">
+                                        {{ number_format($product->base_price, 0, ',', ' ') }} FCFA
+                                    </span>
+                                    <span class="text-sm font-bold text-rhino-900">
+                                        {{ number_format($product->price_promo, 0, ',', ' ') }} FCFA
+                                    </span>
+                                @else
+                                    <span class="text-sm font-bold text-rhino-900">
+                                        {{ number_format($product->base_price, 0, ',', ' ') }} FCFA
+                                    </span>
+                                    <!-- Espace invisible pour maintenir la hauteur -->
+                                    <span class="text-[10px] opacity-0">Placeholder</span>
+                                @endif
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <!-- Version Desktop (lg et plus) -->
+                    <a href="{{ route('products.show', $product->slug) }}" class="hidden lg:block h-full bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden group flex flex-col">
+                        <!-- Image Container -->
+                        <div class="relative h-48 bg-gray-50 flex items-center justify-center overflow-hidden flex-shrink-0">
+                            <img 
+                                class="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300" 
+                                src="{{ $product->image }}" 
+                                alt="{{ $product->title }}" 
+                                loading="lazy"
+                            >
+                            
+                            <!-- Badge Sale (gauche) -->
+                            @if($hasPromo)
+                                <div class="absolute top-3 left-3 bg-white rounded-full px-3 py-1 shadow-sm z-10">
+                                    <span class="text-xs font-bold text-rhino-700 uppercase">Sale</span>
+                                </div>
+                                
+                                <!-- Badge Discount Percentage (droite) -->
+                                <div class="absolute top-3 right-3 bg-orange-500 text-white px-3 py-1 rounded-md shadow-sm z-10">
+                                    <span class="text-xs font-bold">-{{ $discountPercent }}%</span>
+                                </div>
+                            @endif
+                        </div>
+                        
+                        <!-- Product Info - SÉPARÉ de l'image -->
+                        <div class="p-4 bg-white flex flex-col flex-grow">
+                            <h3 class="text-sm font-semibold text-rhino-700 mb-2 line-clamp-2 min-h-[2.5rem] group-hover:text-purple-600 transition-colors">
+                                {{ $product->title }}
+                            </h3>
+                            
+                            <!-- Pricing - Hauteur fixe pour uniformiser -->
+                            <div class="flex flex-col gap-1 min-h-[2.5rem] justify-end">
+                                @if($hasPromo)
+                                    <span class="text-xs text-gray-400 line-through">
+                                        {{ number_format($product->base_price, 0, ',', ' ') }} FCFA
+                                    </span>
+                                    <span class="text-lg font-bold text-rhino-900">
+                                        {{ number_format($product->price_promo, 0, ',', ' ') }} FCFA
+                                    </span>
+                                @else
+                                    <span class="text-lg font-bold text-rhino-900">
+                                        {{ number_format($product->base_price, 0, ',', ' ') }} FCFA
+                                    </span>
+                                    <!-- Espace invisible pour maintenir la hauteur -->
+                                    <span class="text-xs opacity-0">Placeholder</span>
+                                @endif
+                            </div>
                         </div>
                     </a>
                 </div>
