@@ -8,11 +8,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Observers\CouponObserver;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 #[ObservedBy([CouponObserver::class])]
 class Coupon extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory, HasUuids, LogsActivity;
 
     protected $fillable = [
         'code',
@@ -40,6 +42,20 @@ class Coupon extends Model
     public function orders(): BelongsToMany
     {
         return $this->belongsToMany(Order::class)->withPivot('discount_amount')->withTimestamps();
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['code', 'type', 'value', 'min_order_amount', 'usage_limit', 'used_count', 'valid_from', 'valid_until'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn(string $eventName) => match($eventName) {
+                'created' => __('Coupon créé'),
+                'updated' => __('Coupon modifié'),
+                'deleted' => __('Coupon supprimé'),
+                default => __('Activité sur le coupon'),
+            });
     }
 }
 

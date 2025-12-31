@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Coupons\Tables;
 
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -55,6 +56,11 @@ class CouponsTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                Action::make('activities')
+                    ->label(__('Activités'))
+                    ->icon('heroicon-o-clock')
+                    ->color('info')
+                    ->url(fn ($record) => \App\Filament\Resources\Coupons\CouponResource::getUrl('activities', ['record' => $record])),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

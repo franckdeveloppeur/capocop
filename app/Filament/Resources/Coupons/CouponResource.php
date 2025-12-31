@@ -6,6 +6,7 @@ use App\Filament\Resources\Coupons\Pages\CreateCoupon;
 use App\Filament\Resources\Coupons\Pages\EditCoupon;
 use App\Filament\Resources\Coupons\Pages\ListCoupons;
 use App\Filament\Resources\Coupons\Pages\ViewCoupon;
+use App\Filament\Resources\Coupons\Pages\ListCouponActivities;
 use App\Filament\Resources\Coupons\Schemas\CouponForm;
 use App\Filament\Resources\Coupons\Schemas\CouponInfolist;
 use App\Filament\Resources\Coupons\Tables\CouponsTable;
@@ -81,6 +82,7 @@ class CouponResource extends Resource
             'create' => CreateCoupon::route('/create'),
             'view' => ViewCoupon::route('/{record}'),
             'edit' => EditCoupon::route('/{record}/edit'),
+            'activities' => ListCouponActivities::route('/{record}/activities'),
         ];
     }
 }

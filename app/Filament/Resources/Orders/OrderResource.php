@@ -79,6 +79,7 @@ class OrderResource extends Resource
             'create' => CreateOrder::route('/create'),
             'view' => ViewOrder::route('/{record}'),
             'edit' => EditOrder::route('/{record}/edit'),
+            'activities' => Pages\ListOrderActivities::route('/{record}/activities'),
         ];
     }
 }

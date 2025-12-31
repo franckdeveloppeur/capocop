@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Filament\Resources\Orders\Pages;
+namespace App\Filament\Resources\Categories\Pages;
 
 use pxlrbt\FilamentActivityLog\Pages\ListActivities;
 use Filament\Actions\Action;
 
-class ListOrderActivities extends ListActivities
+class ListCategoryActivities extends ListActivities
 {
-    protected static string $resource = \App\Filament\Resources\Orders\OrderResource::class;
+    protected static string $resource = \App\Filament\Resources\Categories\CategoryResource::class;
 
     public function getTitle(): string
     {
-        return __('Journal d\'activités - Commande #:id', ['id' => $this->record->id]);
+        return __('Journal d\'activités - :name', ['name' => $this->record->name ?? 'Catégorie']);
     }
 
     public function getHeading(): string
@@ -21,8 +21,8 @@ class ListOrderActivities extends ListActivities
 
     public function getSubheading(): ?string
     {
-        return __('Historique complet des modifications et actions effectuées sur la commande #:id', [
-            'id' => $this->record->id
+        return __('Historique complet des modifications et actions effectuées sur :name', [
+            'name' => $this->record->name ?? 'cette catégorie'
         ]);
     }
 
@@ -33,7 +33,7 @@ class ListOrderActivities extends ListActivities
                 ->label(__('Retour'))
                 ->icon('heroicon-o-arrow-left')
                 ->color('gray')
-                ->url(fn () => static::getResource()::getUrl('view', ['record' => $this->record])),
+                ->url(fn () => static::getResource()::getUrl('index')),
         ];
     }
 }

@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Filament\Resources\Orders\Pages;
+namespace App\Filament\Resources\Coupons\Pages;
 
 use pxlrbt\FilamentActivityLog\Pages\ListActivities;
 use Filament\Actions\Action;
 
-class ListOrderActivities extends ListActivities
+class ListCouponActivities extends ListActivities
 {
-    protected static string $resource = \App\Filament\Resources\Orders\OrderResource::class;
+    protected static string $resource = \App\Filament\Resources\Coupons\CouponResource::class;
 
     public function getTitle(): string
     {
-        return __('Journal d\'activités - Commande #:id', ['id' => $this->record->id]);
+        return __('Journal d\'activités - Coupon :code', ['code' => $this->record->code ?? 'N/A']);
     }
 
     public function getHeading(): string
@@ -21,8 +21,8 @@ class ListOrderActivities extends ListActivities
 
     public function getSubheading(): ?string
     {
-        return __('Historique complet des modifications et actions effectuées sur la commande #:id', [
-            'id' => $this->record->id
+        return __('Historique complet des modifications et actions effectuées sur le coupon :code', [
+            'code' => $this->record->code ?? 'N/A'
         ]);
     }
 

@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Payments;
 
 use App\Filament\Resources\Payments\Pages\ManagePayments;
+use App\Filament\Resources\Payments\Pages\ListPaymentActivities;
+use App\Filament\Resources\Payments\Tables\PaymentsTable;
 use App\Models\Payment;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -38,13 +40,14 @@ class PaymentResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table;
+        return PaymentsTable::configure($table);
     }
 
     public static function getPages(): array
     {
         return [
             'index' => ManagePayments::route('/'),
+            'activities' => ListPaymentActivities::route('/{record}/activities'),
         ];
     }
 }

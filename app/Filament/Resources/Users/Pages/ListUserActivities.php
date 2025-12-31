@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Users\Pages;
 
 use pxlrbt\FilamentActivityLog\Pages\ListActivities;
+use Filament\Actions\Action;
 
 class ListUserActivities extends ListActivities
 {
@@ -10,17 +11,30 @@ class ListUserActivities extends ListActivities
 
     public function getTitle(): string
     {
-        return __('Journal d\'activités de :name', ['name' => $this->record->name ?? $this->record->email]);
+        return __('Journal d\'activités - :name', ['name' => $this->record->name ?? $this->record->email]);
     }
 
     public function getHeading(): string
     {
-        return __('Journal d\'activités de :name', ['name' => $this->record->name ?? $this->record->email]);
+        return __('Journal d\'activités');
     }
 
     public function getSubheading(): ?string
     {
-        return __('Historique complet des modifications et actions effectuées sur cet utilisateur');
+        return __('Historique complet des modifications et actions effectuées sur :name', [
+            'name' => $this->record->name ?? $this->record->email
+        ]);
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('back')
+                ->label(__('Retour'))
+                ->icon('heroicon-o-arrow-left')
+                ->color('gray')
+                ->url(fn () => static::getResource()::getUrl('view', ['record' => $this->record])),
+        ];
     }
 }
 

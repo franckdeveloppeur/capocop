@@ -81,6 +81,11 @@ class Order extends Model
         return $this->belongsToMany(Coupon::class)->withPivot('discount_amount')->withTimestamps();
     }
 
+    public function returns(): HasMany
+    {
+        return $this->hasMany(OrderReturn::class);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Categories;
 
 use App\Filament\Resources\Categories\Pages\ManageCategories;
+use App\Filament\Resources\Categories\Pages\ListCategoryActivities;
 use App\Models\Category;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
@@ -115,6 +116,11 @@ class CategoryResource extends Resource
                 ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
+                \Filament\Actions\Action::make('activities')
+                    ->label(__('Activités'))
+                    ->icon('heroicon-o-clock')
+                    ->color('info')
+                    ->url(fn ($record) => static::getUrl('activities', ['record' => $record])),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -127,6 +133,7 @@ class CategoryResource extends Resource
     {
         return [
             'index' => ManageCategories::route('/'),
+            'activities' => ListCategoryActivities::route('/{record}/activities'),
         ];
     }
 }
