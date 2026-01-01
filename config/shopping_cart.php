@@ -22,8 +22,9 @@ return [
      * ---------------------------------------------------------------
      *
      * the configuration for persisting cart
+     * Utilise CacheStorage avec cookies pour persister le panier pendant 30 jours
      */
-    'storage' => null,
+    'storage' => \App\Cart\CacheStorage::class,
 
     /*
      * ---------------------------------------------------------------

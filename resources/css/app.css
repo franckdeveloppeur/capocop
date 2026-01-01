@@ -2,5 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Swiper.js Custom Colors - Vert Capocop (selon documentation officielle) */
+:root {
+    --swiper-navigation-color: #00B600;
+    --swiper-pagination-color: #00B600;
+}
+
 /* Filament Activity Log Styles */
 @import '../../../../vendor/pxlrbt/filament-activity-log/resources/css/styles.css';

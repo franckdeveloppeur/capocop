@@ -19,28 +19,52 @@ class PaymentsTable
             ->columns([
                 TextColumn::make('id')
                     ->label('ID')
-                    ->searchable(),
+                    ->searchable()
+                    ->limit(8),
                 TextColumn::make('order.id')
                     ->label('Commande')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->limit(8)
+                    ->formatStateUsing(fn ($state, $record) => $state ? substr($state, 0, 8) : 'N/A')
+                    ->placeholder('N/A'),
                 TextColumn::make('amount')
                     ->label('Montant')
-                    ->money('XOF')
+                    ->money('XAF', locale: 'fr')
                     ->sortable()
                     ->weight('bold'),
                 TextColumn::make('method')
                     ->label('Méthode')
                     ->searchable()
-                    ->badge(),
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'mobile_money' => 'Mobile Money',
+                        'card' => 'Carte bancaire',
+                        'wallet' => 'Capocop Pay',
+                        default => $state,
+                    })
+                    ->color(fn (string $state): string => match ($state) {
+                        'wallet' => 'success',
+                        'card' => 'info',
+                        'mobile_money' => 'warning',
+                        default => 'gray',
+                    }),
                 TextColumn::make('status')
                     ->label('Statut')
                     ->searchable()
                     ->badge()
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'pending' => 'En attente',
+                        'success' => 'Réussi',
+                        'failed' => 'Échoué',
+                        'refunded' => 'Remboursé',
+                        default => $state,
+                    })
                     ->color(fn (string $state): string => match ($state) {
-                        'completed' => 'success',
+                        'success' => 'success',
                         'pending' => 'warning',
                         'failed' => 'danger',
+                        'refunded' => 'info',
                         default => 'gray',
                     }),
                 TextColumn::make('transaction_ref')

@@ -65,7 +65,7 @@ class OrderReturnNotification extends BaseNotification implements ShouldQueue
                     : 'Votre demande de retour a été enregistrée avec succès.')
                 ->line('Produit: ' . $productName)
                 ->line('Raison: ' . ($reasonLabels[$orderReturn->reason] ?? $orderReturn->reason))
-                ->line('Montant de remboursement: ' . number_format($orderReturn->refund_amount, 0, ',', ' ') . ' XOF');
+                ->line('Montant de remboursement: ' . number_format($orderReturn->refund_amount, 0, ',', ' ') . ' XAF');
 
             if ($isAdmin) {
                 $message->line('Client: ' . ($orderReturn->user->name ?? 'N/A'))
@@ -156,7 +156,7 @@ class OrderReturnNotification extends BaseNotification implements ShouldQueue
                 ->title($isAdmin 
                     ? 'Nouvelle demande de retour'
                     : 'Demande de retour enregistrée')
-                ->body('Commande #' . substr($order->id, 0, 8) . ' - ' . $productName . ' - ' . number_format($orderReturn->refund_amount, 0, ',', ' ') . ' XOF');
+                ->body('Commande #' . substr($order->id, 0, 8) . ' - ' . $productName . ' - ' . number_format($orderReturn->refund_amount, 0, ',', ' ') . ' XAF');
 
             if ($isAdmin) {
                 $notification->warning()

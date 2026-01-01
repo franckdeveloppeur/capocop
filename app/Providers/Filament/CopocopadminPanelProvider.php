@@ -32,6 +32,9 @@ class CopocopadminPanelProvider extends PanelProvider
             ->id('capocopadmin')
             ->path('capocopadmin')
             ->login()
+            ->brandLogo(fn () => view('filament.components.logo-light'))
+            ->darkModeBrandLogo(fn () => view('filament.components.logo-dark'))
+            ->brandLogoHeight('1.375rem')
             ->colors([
                 'primary' => Color::Amber,
             ])

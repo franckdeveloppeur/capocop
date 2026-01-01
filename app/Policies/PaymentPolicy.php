@@ -14,9 +14,19 @@ class PaymentPolicy
 
     public function view(User $user, Payment $payment): bool
     {
-        return $user->role === 'admin' || 
-               ($user->role === 'vendor' && $payment->order->shop && $payment->order->shop->vendor->user_id === $user->id) ||
-               ($payment->order->user_id === $user->id);
+        if ($user->role === 'admin') {
+            return true;
+        }
+        
+        if (!$payment->order) {
+            return false;
+        }
+        
+        if ($user->role === 'vendor' && $payment->order->shop && $payment->order->shop->vendor && $payment->order->shop->vendor->user_id === $user->id) {
+            return true;
+        }
+        
+        return $payment->order->user_id === $user->id;
     }
 
     public function create(User $user): bool

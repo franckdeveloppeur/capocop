@@ -4,6 +4,10 @@ namespace App\Filament\Resources\Payments;
 
 use App\Filament\Resources\Payments\Pages\ManagePayments;
 use App\Filament\Resources\Payments\Pages\ListPaymentActivities;
+use App\Filament\Resources\Payments\Pages\ViewPayment;
+use App\Filament\Resources\Payments\Pages\EditPayment;
+use App\Filament\Resources\Payments\Schemas\PaymentForm;
+use App\Filament\Resources\Payments\Schemas\PaymentInfolist;
 use App\Filament\Resources\Payments\Tables\PaymentsTable;
 use App\Models\Payment;
 use BackedEnum;
@@ -30,12 +34,12 @@ class PaymentResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema;
+        return PaymentForm::configure($schema);
     }
 
     public static function infolist(Schema $schema): Schema
     {
-        return $schema;
+        return PaymentInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table
@@ -43,10 +47,25 @@ class PaymentResource extends Resource
         return PaymentsTable::configure($table);
     }
 
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getEloquentQuery()
+            ->with(['order']); // Charger la relation order pour éviter les requêtes N+1
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\OrderRelationManager::class,
+        ];
+    }
+
     public static function getPages(): array
     {
         return [
             'index' => ManagePayments::route('/'),
+            'view' => ViewPayment::route('/{record}'),
+            'edit' => EditPayment::route('/{record}/edit'),
             'activities' => ListPaymentActivities::route('/{record}/activities'),
         ];
     }

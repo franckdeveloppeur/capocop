@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Cart;
 
 class CartServiceProvider extends ServiceProvider
 {
@@ -12,7 +11,9 @@ class CartServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Le package darryldecode/cart s'enregistre automatiquement
+        // Le stockage personnalisé est configuré dans config/shopping_cart.php
+        // Le package utilisera automatiquement CacheStorage via la configuration
     }
 
     /**
@@ -20,18 +21,9 @@ class CartServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Load cart from session or database for authenticated users
-        $this->initializeCart();
-    }
-
-    private function initializeCart()
-    {
-        // If user is authenticated, load their cart from session/database
-        if (auth()->check()) {
-            $userId = auth()->id();
-            
-            // You can add logic here to load cart from database if needed
-            // For now, the package handles session-based persistence
-        }
+        // Le panier est maintenant persistant via cookies et cache pendant 30 jours
+        // Fonctionne pour les visiteurs et les utilisateurs connectés
+        // Les visiteurs peuvent ajouter des produits au panier sans être connectés
+        // Le stockage personnalisé CacheStorage est utilisé via la configuration
     }
 }

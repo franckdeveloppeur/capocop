@@ -27,6 +27,9 @@ class MyAccountPanelProvider extends PanelProvider
         return $panel
             ->id('myAccount')
             ->path('myAccount')
+            ->brandLogo(fn () => view('filament.components.logo-light'))
+            ->darkModeBrandLogo(fn () => view('filament.components.logo-dark'))
+            ->brandLogoHeight('1.375rem')
             ->colors([
                 'primary' => Color::Amber,
             ])

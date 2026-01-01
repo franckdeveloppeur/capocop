@@ -26,10 +26,15 @@ class CreateNewUser implements CreatesNewUsers
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
         ])->validate();
 
-        return User::create([
+        $user = User::create([
             'name' => $input['name'],
             'email' => $input['email'],
             'password' => Hash::make($input['password']),
         ]);
+
+        // Connecter automatiquement l'utilisateur avec remember me après l'inscription
+        \Illuminate\Support\Facades\Auth::guard('web')->login($user, true);
+
+        return $user;
     }
 }

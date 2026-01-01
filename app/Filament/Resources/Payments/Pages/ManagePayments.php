@@ -16,4 +16,5 @@ class ManagePayments extends ManageRecords
             CreateAction::make(),
         ];
     }
+
 }

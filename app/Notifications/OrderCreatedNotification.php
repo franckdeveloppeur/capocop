@@ -24,10 +24,17 @@ class OrderCreatedNotification extends BaseNotification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
+        \Log::info('OrderCreatedNotification::toMail appelé - Email sera envoyé', [
+            'order_id' => $this->order->id,
+            'notifiable_id' => $notifiable->id,
+            'notifiable_email' => $notifiable->email,
+            'queue_connection' => config('queue.default'),
+        ]);
+
         return (new MailMessage)
             ->subject('Nouvelle commande #' . $this->order->id)
             ->line('Votre commande a été créée avec succès.')
-            ->line('Montant total: ' . number_format($this->order->total_amount, 0, ',', ' ') . ' XOF')
+            ->line('Montant total: ' . number_format($this->order->total_amount, 0, ',', ' ') . ' XAF')
             ->action('Voir la commande', url('/orders/' . $this->order->id));
     }
 
@@ -37,7 +44,7 @@ class OrderCreatedNotification extends BaseNotification implements ShouldQueue
         
         return Notification::make()
             ->title($isAdmin ? 'Nouvelle commande créée' : 'Commande créée avec succès')
-            ->body('Commande #' . $this->order->id . ' - Montant: ' . number_format($this->order->total_amount, 0, ',', ' ') . ' XOF')
+            ->body('Commande #' . $this->order->id . ' - Montant: ' . number_format($this->order->total_amount, 0, ',', ' ') . ' XAF')
             ->success()
             ->getDatabaseMessage();
     }

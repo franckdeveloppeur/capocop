@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\InstallmentPlan;
 use App\Models\Payment;
+use App\Notifications\NewCapocopClientNotification;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 
@@ -243,6 +244,12 @@ new class extends Component {
                 'line2' => $this->streetAddress2,
             ]);
 
+            \Log::info('Checkout: Création de la commande', [
+                'user_id' => auth()->id(),
+                'address_id' => $address->id,
+                'total' => $this->total,
+            ]);
+
             $order = Order::create([
                 'user_id' => auth()->id(),
                 'address_id' => $address->id,
@@ -252,6 +259,11 @@ new class extends Component {
                 'status' => 'pending',
                 'payment_method' => $this->paymentMethod === 'capocop' ? 'wallet' : $this->paymentMethod,
                 'is_installment' => $this->useInstallment && $this->canUseInstallment(),
+            ]);
+
+            \Log::info('Checkout: Commande créée', [
+                'order_id' => $order->id,
+                'order_status' => $order->status,
             ]);
 
             foreach ($this->cartItems as $item) {
@@ -304,6 +316,16 @@ new class extends Component {
             }
 
             DB::commit();
+
+            // Send welcome email to new Capocop clients
+            if ($this->paymentMethod === 'capocop' && $this->isNewCapocopClient && $order->user) {
+                \Log::info('Envoi email de bienvenue au nouveau client Capocop', [
+                    'user_id' => $order->user->id,
+                    'user_email' => $order->user->email,
+                    'order_id' => $order->id,
+                ]);
+                $order->user->notify(new NewCapocopClientNotification($order));
+            }
 
             CartService::clear();
             $this->dispatch('cart:updated', count: 0);
