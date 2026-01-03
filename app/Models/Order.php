@@ -76,6 +76,18 @@ class Order extends Model
         return $this->hasOne(InstallmentPlan::class);
     }
 
+    public function installments(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Installment::class,
+            InstallmentPlan::class,
+            'order_id', // Foreign key on installment_plans table
+            'plan_id',  // Foreign key on installments table
+            'id',       // Local key on orders table
+            'id'        // Local key on installment_plans table
+        );
+    }
+
     public function coupons(): BelongsToMany
     {
         return $this->belongsToMany(Coupon::class)->withPivot('discount_amount')->withTimestamps();

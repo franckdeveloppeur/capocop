@@ -37,14 +37,14 @@ class InstallmentPaidNotification extends BaseNotification implements ShouldQueu
             ->greeting('Bonjour ' . ($notifiable->first_name ?? $notifiable->name ?? 'Client') . ',')
             ->line('Nous avons bien reçu votre paiement pour cette échéance.')
             ->line('**Détails du paiement :**')
-            ->line('• Montant payé : **' . number_format($this->installment->amount, 0, ',', ' ') . ' FCFA**')
+            ->line('• Montant payé : **' . number_format($this->installment->amount, 0, ',', ' ') . ' XAF**')
             ->line('• Date de paiement : **' . ($this->installment->paid_at ? $this->installment->paid_at->format('d/m/Y à H:i') : now()->format('d/m/Y à H:i')) . '**')
             ->line('• Commande : **#' . $plan->order_id . '**')
             ->line('**Progression :**')
             ->line('• Échéances payées : **' . $paidCount . '/' . $totalCount . '**')
             ->line('• Échéances restantes : **' . $remainingCount . '**')
             ->when($nextInstallment, function ($mail) use ($nextInstallment) {
-                return $mail->line('• Prochaine échéance : **' . $nextInstallment->due_date->format('d/m/Y') . '** (' . number_format($nextInstallment->amount, 0, ',', ' ') . ' FCFA)');
+                return $mail->line('• Prochaine échéance : **' . $nextInstallment->due_date->format('d/m/Y') . '** (' . number_format($nextInstallment->amount, 0, ',', ' ') . ' XAF)');
             })
             ->when($remainingCount === 0, function ($mail) {
                 return $mail->line('')
@@ -63,7 +63,7 @@ class InstallmentPaidNotification extends BaseNotification implements ShouldQueu
 
         return \Filament\Notifications\Notification::make()
             ->title($isAdmin ? 'Échéance payée' : 'Votre échéance a été payée')
-            ->body('Échéance #' . $paidCount . '/' . $totalCount . ' - ' . number_format($this->installment->amount, 0, ',', ' ') . ' FCFA - Commande #' . $plan->order_id)
+            ->body('Échéance #' . $paidCount . '/' . $totalCount . ' - ' . number_format($this->installment->amount, 0, ',', ' ') . ' XAF - Commande #' . $plan->order_id)
             ->success()
             ->getDatabaseMessage();
     }

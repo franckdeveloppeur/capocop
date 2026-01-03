@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Orders\Schemas;
 
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\HtmlString;
@@ -103,26 +104,10 @@ class OrderInfolist
                     ->columnSpanFull()
                     ->visible(fn ($record) => $record->is_installment && $record->installmentPlan)
                     ->schema([
-                        TextEntry::make('installments_workflow')
-                            ->label('')
-                            ->getStateUsing(function ($record) {
-                                $plan = $record->installmentPlan;
-                                if (!$plan || $plan->installments->isEmpty()) {
-                                    return new HtmlString('<div style="padding: 1rem; text-align: center; color: #6b7280; background: #f9fafb; border-radius: 0.5rem;">
-                                                <svg style="width: 3rem; height: 3rem; margin: 0 auto 0.5rem; color: #9ca3af;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                                </svg>
-                                                <p style="font-weight: 500;">Aucune échéance définie</p>
-                                            </div>');
-                                }
-                                return new HtmlString(view('components.installments-workflow', [
-                                    'installments' => $plan->installments,
-                                    'plan' => $plan,
-                                ])->render());
-                            })
+                        Livewire::make(\App\Livewire\InstallmentsWorkflow::class)
+                            ->key(fn ($record) => 'installments-workflow-' . $record->id)
                             ->columnSpanFull()
-                            ->html()
-                            ->hiddenLabel(),
+                            ->hidden(fn ($record) => !$record->is_installment || !$record->installmentPlan || $record->installmentPlan->installments->isEmpty()),
                     ]),
 
                 // === SECTION 3: PAIEMENT ÉCHELONNÉ (si applicable) ===
@@ -140,10 +125,12 @@ class OrderInfolist
                                     return 'Aucun plan de paiement échelonné';
                                 }
 
-                                $totalPaid = $record->payments->sum('amount');
+                                // Calculer le montant payé à partir des échéances payées
+                                $totalPaid = $plan->installments->where('status', 'paid')->sum('amount');
                                 $remaining = max(0, $plan->total_amount - $totalPaid);
                                 $paidCount = $plan->installments->where('status', 'paid')->count();
-                                $totalCount = $plan->installments->count();
+                                // Utiliser le nombre prévu d'échéances au lieu du nombre créé
+                                $totalCount = $plan->number_of_installments ?? $plan->installments->count();
                                 $progress = $totalCount > 0 ? round(($paidCount / $totalCount) * 100) : 0;
 
                                 return sprintf(
@@ -174,7 +161,14 @@ class OrderInfolist
                         TextEntry::make('installment_paid_amount')
                             ->label('Montant déjà payé')
                             ->money('XOF')
-                            ->getStateUsing(fn ($record) => $record->payments->sum('amount'))
+                            ->getStateUsing(function ($record) {
+                                $plan = $record->installmentPlan;
+                                if (!$plan) {
+                                    return 0;
+                                }
+                                // Calculer le montant payé à partir des échéances payées
+                                return $plan->installments->where('status', 'paid')->sum('amount');
+                            })
                             ->icon('heroicon-o-check-circle')
                             ->weight('bold')
                             ->size('lg')
@@ -188,7 +182,8 @@ class OrderInfolist
                                 if (!$plan) {
                                     return 0;
                                 }
-                                $totalPaid = $record->payments->sum('amount');
+                                // Calculer le montant payé à partir des échéances payées
+                                $totalPaid = $plan->installments->where('status', 'paid')->sum('amount');
                                 return max(0, $plan->total_amount - $totalPaid);
                             })
                             ->icon('heroicon-o-exclamation-triangle')
@@ -204,7 +199,8 @@ class OrderInfolist
                                     return '0/0 (0%)';
                                 }
                                 $paidCount = $plan->installments->where('status', 'paid')->count();
-                                $totalCount = $plan->installments->count();
+                                // Utiliser le nombre prévu d'échéances au lieu du nombre créé
+                                $totalCount = $plan->number_of_installments ?? $plan->installments->count();
                                 $progress = $totalCount > 0 ? round(($paidCount / $totalCount) * 100) : 0;
                                 return sprintf('%d/%d échéances payées (%d%%)', $paidCount, $totalCount, $progress);
                             })
@@ -216,7 +212,8 @@ class OrderInfolist
                                     return 'gray';
                                 }
                                 $paidCount = $plan->installments->where('status', 'paid')->count();
-                                $totalCount = $plan->installments->count();
+                                // Utiliser le nombre prévu d'échéances au lieu du nombre créé
+                                $totalCount = $plan->number_of_installments ?? $plan->installments->count();
                                 $progress = $totalCount > 0 ? round(($paidCount / $totalCount) * 100) : 0;
                                 return match (true) {
                                     $progress === 100 => 'success',
@@ -237,7 +234,19 @@ class OrderInfolist
 
                         TextEntry::make('installment_count')
                             ->label('Nombre d\'échéances')
-                            ->getStateUsing(fn ($record) => $record->installmentPlan?->number_of_installments ?? 0)
+                            ->getStateUsing(function ($record) {
+                                $plan = $record->installmentPlan;
+                                if (!$plan) {
+                                    return 0;
+                                }
+                                // Afficher le nombre prévu et le nombre créé
+                                $planned = $plan->number_of_installments ?? 0;
+                                $created = $plan->installments->count();
+                                if ($planned !== $created) {
+                                    return sprintf('%d prévues (%d créées)', $planned, $created);
+                                }
+                                return $planned;
+                            })
                             ->badge()
                             ->icon('heroicon-o-calendar-days')
                             ->color('gray')

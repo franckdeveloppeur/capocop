@@ -24,6 +24,16 @@ class OrderResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'id';
 
+    public static function getModelLabel(): string
+    {
+        return __('Commande');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Commandes');
+    }
+
     protected static ?int $globalSearchSort = 1;
 
     public static function getGloballySearchableAttributes(): array
@@ -68,7 +78,8 @@ class OrderResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\OrderItemsRelationManager::class,
+            RelationManagers\InstallmentsRelationManager::class,
         ];
     }
 

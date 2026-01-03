@@ -18,6 +18,7 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Support\Facades\Route;
 use Tapp\FilamentAuthenticationLog\FilamentAuthenticationLogPlugin;
 use AchyutN\FilamentLogViewer\FilamentLogViewer;
 use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
@@ -78,6 +79,12 @@ class CopocopadminPanelProvider extends PanelProvider
                 FilamentApexChartsPlugin::make(),
                 SpotlightPlugin::make(),
 
-            ]);
+            ])
+            ->routes(function () {
+                Route::post('/orders/{order}/installments/{installment}/mark-paid', [\App\Filament\Resources\Orders\Pages\ViewOrder::class, 'markInstallmentAsPaid'])
+                    ->name('orders.installments.mark-paid');
+                Route::patch('/orders/{order}/installments/{installment}/update-status', [\App\Filament\Resources\Orders\Pages\ViewOrder::class, 'updateInstallmentStatus'])
+                    ->name('orders.installments.update-status');
+            });
     }
 }

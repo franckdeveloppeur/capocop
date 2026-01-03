@@ -1,4 +1,4 @@
-@props(['installments', 'plan'])
+@props(['installments', 'plan', 'isAdmin' => false, 'orderId' => null])
 
 @php
     $sortedInstallments = $installments->sortBy('due_date');
@@ -108,7 +108,7 @@
                                     <svg class="workflow-icon" style="width: 1.125rem; height: 1.125rem; flex-shrink: 0; color: #6b7280;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
-                                    <span class="workflow-card-text-bold" style="font-weight: 700; font-size: 1.25rem; color: #111827;">{{ number_format($installment->amount, 0, ',', ' ') }} XOF</span>
+                                    <span class="workflow-card-text-bold" style="font-weight: 700; font-size: 1.25rem; color: #111827;">{{ number_format($installment->amount, 0, ',', ' ') }} XAF</span>
                                 </div>
                                 @if($installment->paid_at)
                                     <div class="workflow-card-divider" style="padding-top: 0.75rem; margin-top: 0.5rem; border-top: 2px solid {{ $cardBorder }};">
@@ -118,6 +118,47 @@
                                             </svg>
                                             <span>Payé le {{ $installment->paid_at->format('d/m/Y à H:i') }}</span>
                                         </div>
+                                    </div>
+                                @endif
+                                
+                                @if($isAdmin && $installment->status !== 'paid')
+                                    <!-- Actions Admin -->
+                                    <div class="workflow-card-actions" style="padding-top: 0.75rem; margin-top: 0.75rem; border-top: 2px solid {{ $cardBorder }}; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                        <button 
+                                            type="button" 
+                                            id="mark-paid-btn-{{ $installment->id }}"
+                                            data-installment-id="{{ $installment->id }}"
+                                            data-order-id="{{ $orderId }}"
+                                            data-action="mark-paid"
+                                            class="workflow-action-btn mark-paid-button" 
+                                            style="flex: 1; min-width: 120px; padding: 0.5rem 0.75rem; background: #10b981; color: white; border: none; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.375rem; position: relative;"
+                                            onmouseover="if(!this.disabled) this.style.background='#059669'" 
+                                            onmouseout="if(!this.disabled) this.style.background='#10b981'">
+                                            <svg id="mark-paid-icon-{{ $installment->id }}" style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            <span id="mark-paid-text-{{ $installment->id }}">Marquer payée</span>
+                                            <svg id="mark-paid-spinner-{{ $installment->id }}" style="display: none; width: 1rem; height: 1rem; animation: spin 1s linear infinite;" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                        </button>
+                                        <button 
+                                            type="button" 
+                                            id="update-status-btn-{{ $installment->id }}"
+                                            data-installment-id="{{ $installment->id }}"
+                                            data-installment-status="{{ $installment->status }}"
+                                            data-order-id="{{ $orderId }}"
+                                            data-action="update-status"
+                                            class="workflow-action-btn update-status-button" 
+                                            style="flex: 1; min-width: 120px; padding: 0.5rem 0.75rem; background: #3b82f6; color: white; border: none; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.375rem;"
+                                            onmouseover="if(!this.disabled) this.style.background='#2563eb'" 
+                                            onmouseout="if(!this.disabled) this.style.background='#3b82f6'">
+                                            <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                            </svg>
+                                            Modifier statut
+                                        </button>
                                     </div>
                                 @endif
                             </div>
@@ -190,6 +231,16 @@
             transform: rotate(0deg);
         }
         to {
+            transform: rotate(360deg);
+        }
+    }
+    
+    /* Spinner animation pour les boutons */
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
             transform: rotate(360deg);
         }
     }
@@ -348,4 +399,375 @@
     .dark .installments-workflow-wrapper::-webkit-scrollbar-thumb:hover {
         background-color: #64748b;
     }
+
+    /* Admin Actions Styles */
+    .workflow-action-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .workflow-action-btn:active {
+        transform: translateY(0);
+    }
 </style>
+
+@if($isAdmin)
+<!-- Modal pour modifier le statut -->
+<div id="statusModal" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 0.75rem; padding: 1.5rem; max-width: 28rem; width: 90%; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">
+        <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; color: #111827;">Modifier le Statut de l'Échéance</h3>
+        <form id="statusForm" onsubmit="return updateStatus(event)">
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.5rem;">Statut</label>
+                <select name="status" id="statusSelect" required style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem;">
+                    <option value="pending">En attente</option>
+                    <option value="paid">Payée</option>
+                    <option value="overdue">En retard</option>
+                </select>
+            </div>
+            <div id="paidAtContainer" style="margin-bottom: 1rem; display: none;">
+                <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.5rem;">Date de Paiement</label>
+                <input type="datetime-local" name="paid_at" id="paidAtInput" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem;">
+            </div>
+            <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+                <button type="button" onclick="closeStatusModal()" style="padding: 0.5rem 1rem; background: #e5e7eb; color: #374151; border: none; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; cursor: pointer;">Annuler</button>
+                <button type="submit" id="statusFormSubmit" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; cursor: pointer;">Enregistrer</button>
+            </div>
+        </form>
+    </div>
+</div>
+@endif
+
+{!! '<script>' !!}
+(function() {
+    'use strict';
+    
+    // Initialiser l'objet global
+    window.installmentWorkflow = window.installmentWorkflow || { currentInstallmentId: null };
+    
+    // Fonction pour marquer comme payée
+    window.handleMarkAsPaid = function(installmentId, orderId, buttonElement) {
+        console.log('handleMarkAsPaid called', { installmentId, orderId, buttonElement });
+        
+        try {
+            if (!installmentId || !orderId) {
+                console.error('Missing data:', { installmentId, orderId });
+                alert('Erreur: Données manquantes');
+                return false;
+            }
+            
+            console.log('Showing confirmation dialog...');
+            const confirmed = confirm('Êtes-vous sûr de vouloir marquer cette échéance comme payée ?');
+            console.log('Confirmation result:', confirmed);
+            
+            if (!confirmed) {
+                console.log('User cancelled');
+                return false;
+            }
+            
+            // Afficher le spinner
+            console.log('Updating UI...');
+            if (buttonElement) {
+                buttonElement.disabled = true;
+                buttonElement.style.opacity = '0.6';
+                const icon = document.getElementById('mark-paid-icon-' + installmentId);
+                const text = document.getElementById('mark-paid-text-' + installmentId);
+                const spinner = document.getElementById('mark-paid-spinner-' + installmentId);
+                if (icon) icon.style.display = 'none';
+                if (text) text.textContent = 'Traitement...';
+                if (spinner) spinner.style.display = 'block';
+            }
+            
+            const url = '/capocopadmin/orders/' + orderId + '/installments/' + installmentId + '/mark-paid';
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            
+            console.log('Making fetch request to:', url);
+            console.log('CSRF Token:', csrfToken ? 'Found' : 'Missing');
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => {
+                console.log('Response received:', response.status, response.statusText);
+                if (!response.ok) {
+                    const errorText = response.statusText || 'Network response was not ok';
+                    console.error('Response not OK:', response.status, errorText);
+                    return response.text().then(text => {
+                        console.error('Response body:', text);
+                        throw new Error(errorText + ': ' + text);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                if (data.success) {
+                    alert('Succès: ' + (data.message || 'Échéance marquée comme payée avec succès'));
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 500);
+                } else {
+                    console.error('Request failed:', data);
+                    if (buttonElement) {
+                        buttonElement.disabled = false;
+                        buttonElement.style.opacity = '1';
+                        const icon = document.getElementById('mark-paid-icon-' + installmentId);
+                        const text = document.getElementById('mark-paid-text-' + installmentId);
+                        const spinner = document.getElementById('mark-paid-spinner-' + installmentId);
+                        if (icon) icon.style.display = 'block';
+                        if (text) text.textContent = 'Marquer payée';
+                        if (spinner) spinner.style.display = 'none';
+                    }
+                    alert('Erreur: ' + (data.message || 'Une erreur est survenue'));
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                if (buttonElement) {
+                    buttonElement.disabled = false;
+                    buttonElement.style.opacity = '1';
+                    const icon = document.getElementById('mark-paid-icon-' + installmentId);
+                    const text = document.getElementById('mark-paid-text-' + installmentId);
+                    const spinner = document.getElementById('mark-paid-spinner-' + installmentId);
+                    if (icon) icon.style.display = 'block';
+                    if (text) text.textContent = 'Marquer payée';
+                    if (spinner) spinner.style.display = 'none';
+                }
+                alert('Erreur: Une erreur est survenue lors du traitement. Vérifiez la console pour plus de détails.');
+            });
+            
+            return false;
+        } catch (error) {
+            console.error('handleMarkAsPaid error:', error);
+            alert('Erreur: ' + error.message);
+            return false;
+        }
+    };
+    
+    // Fonction pour ouvrir le modal
+    window.handleUpdateStatus = function(installmentId, currentStatus, orderId) {
+        console.log('handleUpdateStatus called', { installmentId, currentStatus, orderId });
+        
+        if (!installmentId || !orderId) {
+            alert('Erreur: Données manquantes');
+            return false;
+        }
+        
+        window.installmentWorkflow.currentInstallmentId = installmentId;
+        window.installmentWorkflow.orderId = orderId;
+        
+        const modal = document.getElementById('statusModal');
+        const statusSelect = document.getElementById('statusSelect');
+        const paidAtContainer = document.getElementById('paidAtContainer');
+        const paidAtInput = document.getElementById('paidAtInput');
+        
+        if (!modal || !statusSelect) {
+            alert('Erreur: Modal non trouvé');
+            return false;
+        }
+        
+        statusSelect.value = currentStatus || 'pending';
+        
+        if (currentStatus === 'paid') {
+            paidAtContainer.style.display = 'block';
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            paidAtInput.value = now.toISOString().slice(0, 16);
+        } else {
+            paidAtContainer.style.display = 'none';
+        }
+        
+        // Réinitialiser l'event listener du select
+        const newStatusSelect = statusSelect.cloneNode(true);
+        statusSelect.parentNode.replaceChild(newStatusSelect, statusSelect);
+        const newSelect = document.getElementById('statusSelect');
+        if (newSelect) {
+            newSelect.addEventListener('change', function() {
+                if (this.value === 'paid') {
+                    paidAtContainer.style.display = 'block';
+                    const now = new Date();
+                    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                    paidAtInput.value = now.toISOString().slice(0, 16);
+                } else {
+                    paidAtContainer.style.display = 'none';
+                }
+            });
+        }
+        
+        modal.style.display = 'flex';
+        return false;
+    };
+    
+    // Fonction pour mettre à jour le statut
+    window.updateStatus = function(event) {
+        if (event) event.preventDefault();
+        
+        if (!window.installmentWorkflow || !window.installmentWorkflow.currentInstallmentId || !window.installmentWorkflow.orderId) {
+            alert('Erreur: Données manquantes');
+            return false;
+        }
+        
+        const statusSelect = document.getElementById('statusSelect');
+        const paidAtInput = document.getElementById('paidAtInput');
+        const status = statusSelect ? statusSelect.value : null;
+        const paidAt = status === 'paid' && paidAtInput ? paidAtInput.value : null;
+        
+        const submitButton = document.getElementById('statusFormSubmit');
+        if (!submitButton) {
+            alert('Erreur: Bouton de soumission non trouvé');
+            return false;
+        }
+        
+        const originalText = submitButton.textContent;
+        
+        // Afficher le spinner
+        submitButton.disabled = true;
+        submitButton.style.opacity = '0.6';
+        submitButton.style.cursor = 'not-allowed';
+        submitButton.innerHTML = '<svg style="display: inline-block; width: 1rem; height: 1rem; animation: spin 1s linear infinite; margin-right: 0.5rem;" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Traitement...';
+        
+        const url = '/capocopadmin/orders/' + window.installmentWorkflow.orderId + '/installments/' + window.installmentWorkflow.currentInstallmentId + '/update-status';
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        
+        fetch(url, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                status: status,
+                paid_at: paidAt
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                alert('Succès: ' + (data.message || 'Statut de l\'échéance mis à jour avec succès'));
+                window.closeStatusModal();
+                setTimeout(() => {
+                    window.location.reload();
+                }, 500);
+            } else {
+                submitButton.disabled = false;
+                submitButton.style.opacity = '1';
+                submitButton.style.cursor = 'pointer';
+                submitButton.textContent = originalText;
+                alert('Erreur: ' + (data.message || 'Une erreur est survenue'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            submitButton.disabled = false;
+            submitButton.style.opacity = '1';
+            submitButton.style.cursor = 'pointer';
+            submitButton.textContent = originalText;
+            alert('Erreur: Une erreur est survenue lors du traitement');
+        });
+        
+        return false;
+    };
+    
+    // Fonction pour fermer le modal
+    window.closeStatusModal = function() {
+        const modal = document.getElementById('statusModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        window.installmentWorkflow.currentInstallmentId = null;
+    };
+    
+    // Fermer le modal en cliquant en dehors
+    document.addEventListener('click', function(e) {
+        const modal = document.getElementById('statusModal');
+        if (modal && e.target === modal) {
+            window.closeStatusModal();
+        }
+    });
+    
+    // Utiliser la délégation d'événements pour gérer tous les clics sur les boutons
+    // Cela fonctionne même si les boutons sont ajoutés dynamiquement
+    document.addEventListener('click', function(e) {
+        const button = e.target.closest('.workflow-action-btn');
+        if (!button) return;
+        
+        const action = button.getAttribute('data-action');
+        const installmentId = button.getAttribute('data-installment-id');
+        const orderId = button.getAttribute('data-order-id');
+        const status = button.getAttribute('data-installment-status');
+        
+        console.log('Button clicked:', { action, installmentId, orderId, status, button });
+        
+        if (action === 'mark-paid' && installmentId && orderId) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Mark as paid action triggered');
+            if (window.handleMarkAsPaid) {
+                window.handleMarkAsPaid(installmentId, orderId, button);
+            } else {
+                console.error('handleMarkAsPaid function not found!');
+                alert('Erreur: Fonction non disponible. Veuillez recharger la page.');
+            }
+        } else if (action === 'update-status' && installmentId && orderId) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Update status action triggered');
+            if (window.handleUpdateStatus) {
+                window.handleUpdateStatus(installmentId, status, orderId);
+            } else {
+                console.error('handleUpdateStatus function not found!');
+                alert('Erreur: Fonction non disponible. Veuillez recharger la page.');
+            }
+        }
+    });
+    
+    // Initialiser et vérifier que tout est prêt
+    function initWorkflow() {
+        console.log('Initializing installment workflow...');
+        
+        const markPaidButtons = document.querySelectorAll('.mark-paid-button');
+        const updateStatusButtons = document.querySelectorAll('.update-status-button');
+        
+        console.log('Found buttons:', {
+            markPaid: markPaidButtons.length,
+            updateStatus: updateStatusButtons.length
+        });
+        
+        console.log('Installment workflow functions loaded', {
+            handleMarkAsPaid: typeof window.handleMarkAsPaid,
+            handleUpdateStatus: typeof window.handleUpdateStatus,
+            updateStatus: typeof window.updateStatus,
+            closeStatusModal: typeof window.closeStatusModal
+        });
+        
+        // Vérifier que les fonctions sont disponibles
+        if (typeof window.handleMarkAsPaid === 'undefined') {
+            console.error('handleMarkAsPaid is not defined!');
+        }
+        if (typeof window.handleUpdateStatus === 'undefined') {
+            console.error('handleUpdateStatus is not defined!');
+        }
+    }
+    
+    // Attacher les listeners après le chargement du DOM
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initWorkflow);
+    } else {
+        initWorkflow();
+        setTimeout(initWorkflow, 100);
+        setTimeout(initWorkflow, 500);
+    }
+})();
+{!! '</script>' !!}
